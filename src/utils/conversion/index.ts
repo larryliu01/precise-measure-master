@@ -1,4 +1,3 @@
-
 import { ConversionCategory } from './types';
 import { lengthCategory, parseFeetInches, formatFeetInches } from './length';
 import { areaCategory } from './area';
@@ -11,7 +10,6 @@ import { pressureCategory } from './pressure';
 import { energyCategory } from './energy';
 import { powerCategory } from './power';
 import { dataCategory } from './data';
-import { currencyCategory } from './currency';
 import { convertValue } from './convert';
 
 // Collect all categories
@@ -26,8 +24,7 @@ export const conversionCategories: Record<string, ConversionCategory> = {
   pressure: pressureCategory,
   energy: energyCategory,
   power: powerCategory,
-  data: dataCategory,
-  currency: currencyCategory
+  data: dataCategory
 };
 
 // Export everything
