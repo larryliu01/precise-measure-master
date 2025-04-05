@@ -17,8 +17,6 @@ import { screwCategory } from './screw';
 import { siCategory } from './si';
 import { angleCategory } from './angle';
 import { flowrateCategory } from './flowrate';
-import { shoeSizeCategory } from './shoeSize';
-import { clothingSizeCategory } from './clothingSize';
 import { gpsCoordinatesCategory } from './gpsCoordinates';
 
 // Collect all categories
@@ -39,16 +37,15 @@ export const conversionCategories: Record<string, ConversionCategory> = {
   si: siCategory,
   angle: angleCategory,
   flowrate: flowrateCategory,
-  shoe_size: shoeSizeCategory,
-  clothing_size: clothingSizeCategory,
   gps_coordinates: gpsCoordinatesCategory
   // Currency removed from general unit conversion but kept as separate tab
 };
 
-// Export everything
-export {
-  parseFeetInches,
-  formatFeetInches,
-  convertValue,
-  currencyCategory
+// Re-export for convenience
+export { 
+  lengthCategory, 
+  parseFeetInches, 
+  formatFeetInches, 
+  convertValue, 
+  currencyCategory 
 };

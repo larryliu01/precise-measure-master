@@ -30,11 +30,50 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
     }
   }, [category]);
 
+  // Check if the input might contain compound units
+  const hasCompoundUnits = (input: string): boolean => {
+    // Check for length compound units (3ft4in, etc.)
+    if (category === "length" && 
+        (input.includes("ft") || input.includes("'") || input.includes("feet") || 
+         input.includes("in") || input.includes('"') || input.includes("inches"))) {
+      return true;
+    }
+    
+    // Check for time compound units (4h3min, etc.)
+    if (category === "time" && 
+        ((input.includes("h") || input.includes("hour")) && 
+         (input.includes("m") || input.includes("min") || 
+          input.includes("s") || input.includes("sec")))) {
+      return true;
+    }
+    
+    return false;
+  };
+
   // Convert when from value, from unit, or to unit changes
   useEffect(() => {
     if (fromValue && fromUnit && toUnit) {
-      const result = convertValue(fromValue, fromUnit, toUnit, category);
-      setToValue(result.toString());
+      try {
+        // Check if this might be a compound unit input
+        if (hasCompoundUnits(fromValue)) {
+          // Use the full input string for special handling
+          const result = convertValue(fromValue, fromUnit, toUnit, category);
+          setToValue(result.toString());
+        } else {
+          // For regular inputs, extract just the numeric part
+          const numericMatch = fromValue.match(/^[-+]?\d*\.?\d+/);
+          if (numericMatch) {
+            const numericValue = numericMatch[0];
+            const result = convertValue(numericValue, fromUnit, toUnit, category);
+            setToValue(result.toString());
+          } else {
+            setToValue("");
+          }
+        }
+      } catch (error) {
+        console.error("Conversion error:", error);
+        setToValue("");
+      }
     } else {
       setToValue("");
     }
@@ -49,6 +88,36 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
     setToUnit(tempUnit);
   };
 
+  // Handle from value change
+  const handleFromValueChange = (val: string) => {
+    setFromValue(val);
+  };
+
+  // Handle to value change
+  const handleToValueChange = (val: string) => {
+    setToValue(val);
+    if (val && toUnit && fromUnit) {
+      try {
+        // Check if this might be a compound unit input
+        if (hasCompoundUnits(val)) {
+          // Use the full input string for special handling
+          const result = convertValue(val, toUnit, fromUnit, category);
+          setFromValue(result.toString());
+        } else {
+          // For regular inputs, extract just the numeric part
+          const numericMatch = val.match(/^[-+]?\d*\.?\d+/);
+          if (numericMatch) {
+            const numericValue = numericMatch[0];
+            const result = convertValue(numericValue, toUnit, fromUnit, category);
+            setFromValue(result.toString());
+          }
+        }
+      } catch (error) {
+        console.error("Error converting back:", error);
+      }
+    }
+  };
+
   return (
     <div className="conversion-card">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -56,7 +125,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
           category={category}
           value={fromValue}
           unit={fromUnit}
-          onValueChange={setFromValue}
+          onValueChange={handleFromValueChange}
           onUnitChange={setFromUnit}
           label="From"
           placeholder="Enter value"
@@ -66,13 +135,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
           category={category}
           value={toValue}
           unit={toUnit}
-          onValueChange={(val) => {
-            setToValue(val);
-            if (val && toUnit && fromUnit) {
-              const result = convertValue(val, toUnit, fromUnit, category);
-              setFromValue(result.toString());
-            }
-          }}
+          onValueChange={handleToValueChange}
           onUnitChange={setToUnit}
           label="To"
         />

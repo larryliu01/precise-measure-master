@@ -1,4 +1,3 @@
-
 import { ConversionCategory } from './types';
 
 export const lengthCategory: ConversionCategory = {
@@ -61,13 +60,17 @@ export const lengthCategory: ConversionCategory = {
 
 // Helper function to parse feet and inches format (e.g. "5ft 3in" or "5'3\"")
 export const parseFeetInches = (input: string): number => {
-  // Remove all spaces
-  input = input.replace(/\s+/g, '');
+  // Normalize input (remove all spaces, convert to lowercase)
+  input = input.replace(/\s+/g, '').toLowerCase();
   
-  // Match patterns like 5ft3in, 5'3", etc.
-  const feetInchesRegex = /(\d+)(?:ft|'|feet)(\d+)(?:in|"|inches)?/i;
-  const feetOnlyRegex = /(\d+)(?:ft|'|feet)$/i;
-  const inchesOnlyRegex = /(\d+)(?:in|"|inches)$/i;
+  // First try to match patterns like 5ft3in, 5'3", etc.
+  const feetInchesRegex = /(\d+(?:\.\d+)?)(?:ft|'|feet)(\d+(?:\.\d+)?)(?:in|"|inches)?/i;
+  // Then try feet only like 5ft, 5', 5feet
+  const feetOnlyRegex = /(\d+(?:\.\d+)?)(?:ft|'|feet)/i;
+  // Then try inches only like 3in, 3", 3inches
+  const inchesOnlyRegex = /(\d+(?:\.\d+)?)(?:in|"|inches)/i;
+  // Decimal feet - like 5.5ft
+  const decimalFeetRegex = /(\d+\.\d+)(?:ft|'|feet)/i;
   
   let feet = 0;
   let inches = 0;
@@ -75,14 +78,24 @@ export const parseFeetInches = (input: string): number => {
   const feetInchesMatch = input.match(feetInchesRegex);
   const feetOnlyMatch = input.match(feetOnlyRegex);
   const inchesOnlyMatch = input.match(inchesOnlyRegex);
+  const decimalFeetMatch = input.match(decimalFeetRegex);
   
   if (feetInchesMatch) {
-    feet = parseInt(feetInchesMatch[1], 10);
-    inches = parseInt(feetInchesMatch[2], 10);
+    feet = parseFloat(feetInchesMatch[1]);
+    inches = parseFloat(feetInchesMatch[2]);
+  } else if (decimalFeetMatch) {
+    // This handles cases like "5.5ft"
+    return parseFloat(decimalFeetMatch[1]);
   } else if (feetOnlyMatch) {
-    feet = parseInt(feetOnlyMatch[1], 10);
+    feet = parseFloat(feetOnlyMatch[1]);
   } else if (inchesOnlyMatch) {
-    inches = parseInt(inchesOnlyMatch[1], 10);
+    inches = parseFloat(inchesOnlyMatch[1]);
+  } else {
+    // Try to parse as just a number (assume feet)
+    const numericMatch = input.match(/^(\d+(?:\.\d+)?)$/);
+    if (numericMatch) {
+      feet = parseFloat(numericMatch[1]);
+    }
   }
   
   // Convert to decimal feet

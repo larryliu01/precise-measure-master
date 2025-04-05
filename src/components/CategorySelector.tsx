@@ -15,8 +15,6 @@ import {
   Wrench,
   Compass,
   Droplets,
-  Shirt,
-  Footprints,
   MapPin
 } from "lucide-react";
 
@@ -40,8 +38,6 @@ const iconMap: Record<string, React.ReactNode> = {
   wrench: <Wrench className="h-5 w-5" />,
   compass: <Compass className="h-5 w-5" />,
   droplets: <Droplets className="h-5 w-5" />,
-  shirt: <Shirt className="h-5 w-5" />,
-  footprints: <Footprints className="h-5 w-5" />,
   "map-pin": <MapPin className="h-5 w-5" />
 };
 

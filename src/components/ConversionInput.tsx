@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import UnitSelector from "./UnitSelector";
 import { conversionCategories, currencyCategory } from "../utils/conversion";
 
@@ -13,48 +13,6 @@ interface ConversionInputProps {
   placeholder?: string;
 }
 
-// Function to extract unit abbreviations from input strings
-const extractUnitFromInput = (input: string, category: string): { value: string, unitKey: string | null } => {
-  // Skip if input is empty or just a number
-  if (!input || /^-?\d*\.?\d*$/.test(input)) {
-    return { value: input, unitKey: null };
-  }
-
-  // Get all units for the current category
-  const categoryData = category === 'currency' && !conversionCategories[category]
-    ? currencyCategory
-    : conversionCategories[category];
-
-  if (!categoryData) {
-    return { value: input, unitKey: null };
-  }
-
-  const units = categoryData.units;
-  
-  // Create a mapping of unit labels and their variations to unit keys
-  const unitMappings = Object.entries(units).reduce((acc, [key, unitInfo]) => {
-    // Extract the abbreviation from the label if it exists (e.g., "Kilograms (kg)" -> "kg")
-    const match = unitInfo.label.match(/\(([^)]+)\)/);
-    if (match && match[1]) {
-      acc[match[1].toLowerCase()] = key;
-    }
-    return acc;
-  }, {} as Record<string, string>);
-
-  // Try to extract numeric value and unit
-  const match = input.match(/^(-?\d*\.?\d+)\s*([a-zA-Z°'\"]+)$/);
-  if (match) {
-    const [, numericPart, unitPart] = match;
-    const unitKey = unitMappings[unitPart.toLowerCase()];
-    
-    if (unitKey) {
-      return { value: numericPart, unitKey };
-    }
-  }
-
-  return { value: input, unitKey: null };
-};
-
 const ConversionInput: React.FC<ConversionInputProps> = ({
   category,
   value,
@@ -65,27 +23,116 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   readOnly = false,
   placeholder = "Enter value"
 }) => {
-  // Track if we're currently processing a unit extraction to prevent loops
-  const [processingUnitExtraction, setProcessingUnitExtraction] = useState(false);
-
-  const handleInputChange = (inputValue: string) => {
-    if (processingUnitExtraction) {
-      onValueChange(inputValue);
+  // Local state for input value - keeps the full text including units
+  const [inputText, setInputText] = useState<string>(value);
+  // Keep reference to the last unit that was detected
+  const lastDetectedUnitRef = useRef<string>("");
+  
+  // Update local state when prop value changes
+  useEffect(() => {
+    // Only update if the value has actually changed and it's different from inputText
+    // This avoids unnecessary updates during typing
+    if (value !== inputText) {
+      setInputText(value);
+    }
+  }, [value]);
+  
+  // Get abbreviation for a unit
+  const getUnitAbbreviation = (unitKey: string) => {
+    const categoryData = category === 'currency' && !conversionCategories[category] 
+      ? currencyCategory
+      : conversionCategories[category];
+      
+    if (categoryData && unitKey) {
+      const unitInfo = categoryData.units[unitKey];
+      if (unitInfo) {
+        const abbrevMatch = unitInfo.label.match(/\(([^)]+)\)/);
+        return abbrevMatch ? abbrevMatch[1] : "";
+      }
+    }
+    return "";
+  };
+  
+  // Get all possible unit abbreviations and names for the current category
+  const getUnitOptions = () => {
+    const result = [];
+    const categoryData = category === 'currency' && !conversionCategories[category] 
+      ? currencyCategory
+      : conversionCategories[category];
+    
+    if (!categoryData) return [];
+    
+    for (const unitKey in categoryData.units) {
+      const unitInfo = categoryData.units[unitKey];
+      const unitLabel = unitInfo.label;
+      
+      // Extract abbreviation from label (text inside parentheses)
+      const abbrevMatch = unitLabel.match(/\(([^)]+)\)/);
+      const abbreviation = abbrevMatch ? abbrevMatch[1].toLowerCase() : "";
+      
+      // Get unit name (text before parentheses)
+      const nameMatch = unitLabel.match(/^([^(]+)/);
+      const name = nameMatch ? nameMatch[1].trim().toLowerCase() : "";
+      
+      result.push({
+        key: unitKey,
+        abbreviation,
+        name
+      });
+    }
+    
+    // Sort by length descending so longer matches take precedence
+    return result.sort((a, b) => {
+      const aLen = Math.max(a.abbreviation.length, a.name.length);
+      const bLen = Math.max(b.abbreviation.length, b.name.length);
+      return bLen - aLen;
+    });
+  };
+  
+  // Handle input change with unit detection
+  const handleInputChange = (input: string) => {
+    // Keep track of the full input including units
+    setInputText(input);
+    
+    // Look for number at the start
+    const parts = input.match(/^([-+]?\d*\.?\d+)\s*(.*)$/);
+    
+    if (!parts) {
+      // No number pattern found, just update with the raw input
+      onValueChange(input);
       return;
     }
-
-    const { value: extractedValue, unitKey } = extractUnitFromInput(inputValue, category);
     
-    // If we found a unit in the input, update both value and unit
-    if (unitKey) {
-      setProcessingUnitExtraction(true);
-      onValueChange(extractedValue);
-      onUnitChange(unitKey);
-      // Reset processing flag after a short delay to ensure state updates complete
-      setTimeout(() => setProcessingUnitExtraction(false), 100);
-    } else {
-      onValueChange(inputValue);
+    const numericValue = parts[1];
+    const remainingText = parts[2].toLowerCase().trim();
+    
+    // If there's text after the number, check if it's a unit
+    if (remainingText) {
+      // Check against all possible units
+      const unitOptions = getUnitOptions();
+      let detectedUnit = "";
+      
+      for (const option of unitOptions) {
+        if (
+          remainingText === option.abbreviation || 
+          remainingText.startsWith(option.abbreviation + " ") ||
+          remainingText === option.name ||
+          remainingText.startsWith(option.name + " ")
+        ) {
+          detectedUnit = option.key;
+          break;
+        }
+      }
+      
+      // If we found a unit, update the unit selector
+      if (detectedUnit && detectedUnit !== unit) {
+        onUnitChange(detectedUnit);
+      }
     }
+    
+    // Either way, update the value with the full input
+    // This allows the user to continue typing units
+    onValueChange(input);
   };
 
   return (
@@ -98,7 +145,7 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
           <div className="flex-grow">
             <input
               type="text"
-              value={value}
+              value={inputText}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder={placeholder}
               readOnly={readOnly}
