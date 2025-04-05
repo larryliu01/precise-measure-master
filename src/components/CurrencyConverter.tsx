@@ -127,7 +127,7 @@ const CurrencyConverter: React.FC = () => {
               min="0"
             />
             <Select value={fromCurrency} onValueChange={setFromCurrency}>
-              <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus">
+              <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">
@@ -163,7 +163,7 @@ const CurrencyConverter: React.FC = () => {
               />
             )}
             <Select value={toCurrency} onValueChange={setToCurrency}>
-              <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus">
+              <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">

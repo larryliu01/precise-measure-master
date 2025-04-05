@@ -34,6 +34,26 @@
 
     --radius: 1rem;
   }
+
+  /* Override any browser default outlines at the root level */
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Override built-in focus rings */
+  [data-radix-focus-visible],
+  [data-focus-visible],
+  *[data-focus] {
+    outline: none !important;
+    box-shadow: none !important;
+    ring: 0 !important;
+  }
 }
 
 @layer base {
@@ -45,8 +65,20 @@
     @apply bg-appblue text-foreground min-h-screen;
   }
   
-  input:focus, .glowing-focus:focus-within {
+  /* Only add glow effect to specific focused elements */
+  .input-field:focus, 
+  .glowing-focus:focus-within {
     animation: glow 1.5s ease-in-out infinite alternate;
+  }
+  
+  /* Remove outline from all form elements */
+  input, select, button, textarea,
+  [role="combobox"],
+  [role="listbox"] {
+    outline: 0 !important;
+    outline-width: 0 !important;
+    box-shadow: none !important;
+    -webkit-appearance: none !important;
   }
   
   @keyframes glow {
@@ -65,13 +97,39 @@
   shadow-inner shadow-appcyan/20;
 }
 
-/* Override any browser default focus outlines */
+/* Override any browser default focus outlines more aggressively */
 input:focus,
 select:focus,
 button:focus,
+textarea:focus,
+select:focus-visible,
+input:focus-visible,
 .glowing-focus:focus,
-.glowing-focus:focus-within {
+.glowing-focus:focus-within,
+*[data-state="open"],
+*[data-highlighted],
+*[data-focus],
+*[data-focus-visible] {
   outline: none !important;
+  outline-width: 0 !important;
+  outline-color: transparent !important;
+  outline-style: none !important;
+  box-shadow: none !important;
+  border-radius: inherit !important;
+  ring: 0 !important;
+  ring-width: 0 !important;
+  ring-offset-width: 0 !important;
+}
+
+.no-outline {
+  outline: none !important;
+  outline-width: 0 !important;
+  outline-color: transparent !important;
+  outline-style: none !important;
+  box-shadow: none !important;
+  ring: 0 !important;
+  ring-width: 0 !important;
+  ring-offset-width: 0 !important;
 }
 
 .unit-card {
