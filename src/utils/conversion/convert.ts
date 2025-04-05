@@ -7,16 +7,45 @@ const parseTimeExpression = (value: string): number => {
   const normalized = value.toLowerCase().replace(/\s+/g, '');
   
   // Look for hours pattern (e.g., 4h, 4hr, 4hrs)
-  const hoursMatch = normalized.match(/(\d+)(?:h|hr|hour|hours)/);
-  const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+  // Use global flag to find all matches
+  const hoursMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:h|hr|hour|hours)/g));
+  let hours = 0;
+  for (const match of hoursMatches) {
+    hours += parseFloat(match[1]);
+  }
   
-  // Look for minutes pattern (e.g., 30m, 30min, 30mins)
-  const minutesMatch = normalized.match(/(\d+)(?:m|min|minute|minutes)/);
-  const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+  // Look for minutes pattern (e.g., 30min, 30m)
+  // We need to be careful with just 'm' as it could be meters or other units
+  // First try specific minute terms
+  const minutesSpecificMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:min|minute|minutes)/g));
+  let minutes = 0;
+  for (const match of minutesSpecificMatches) {
+    minutes += parseFloat(match[1]);
+  }
+  
+  // Then try just 'm' if it's in a time context (after a number, not followed by other letters)
+  // Only if it's not followed by letters (to avoid matching 'meters', 'miles', etc.)
+  if (minutesSpecificMatches.length === 0) {
+    const mMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)m(?![a-z])/g));
+    for (const match of mMatches) {
+      minutes += parseFloat(match[1]);
+    }
+  }
   
   // Look for seconds pattern (e.g., 15s, 15sec, 15seconds)
-  const secondsMatch = normalized.match(/(\d+)(?:s|sec|second|seconds)/);
-  const seconds = secondsMatch ? parseInt(secondsMatch[1]) : 0;
+  const secondsMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:s|sec|second|seconds)/g));
+  let seconds = 0;
+  for (const match of secondsMatches) {
+    seconds += parseFloat(match[1]);
+  }
+  
+  // If we couldn't parse anything, try to interpret as the current unit
+  if (hours === 0 && minutes === 0 && seconds === 0) {
+    const numericMatch = normalized.match(/^(\d+(?:\.\d+)?)$/);
+    if (numericMatch) {
+      return parseFloat(numericMatch[1]);
+    }
+  }
   
   // Convert all to seconds as the common unit
   return hours * 3600 + minutes * 60 + seconds;

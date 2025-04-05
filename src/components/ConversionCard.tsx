@@ -40,11 +40,16 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
     }
     
     // Check for time compound units (4h3min, etc.)
-    if (category === "time" && 
-        ((input.includes("h") || input.includes("hour")) && 
-         (input.includes("m") || input.includes("min") || 
-          input.includes("s") || input.includes("sec")))) {
-      return true;
+    if (category === "time") {
+      // Look for hour/minute/second patterns
+      const hasHours = /\d+\s*(?:h|hr|hour|hours)/i.test(input);
+      const hasMinutes = /\d+\s*(?:m|min|minute|minutes)/i.test(input);
+      const hasSeconds = /\d+\s*(?:s|sec|second|seconds)/i.test(input);
+      
+      // Consider it a compound unit if it has any time unit
+      if (hasHours || hasMinutes || hasSeconds) {
+        return true;
+      }
     }
     
     return false;
