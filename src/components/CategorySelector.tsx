@@ -10,7 +10,14 @@ import {
   Gauge, 
   Zap, 
   Power, 
-  Database 
+  Database,
+  Sun,
+  Wrench,
+  Compass,
+  Droplets,
+  Shirt,
+  Footprints,
+  MapPin
 } from "lucide-react";
 
 interface CategorySelectorProps {
@@ -29,6 +36,13 @@ const iconMap: Record<string, React.ReactNode> = {
   zap: <Zap className="h-5 w-5" />,
   power: <Power className="h-5 w-5" />,
   database: <Database className="h-5 w-5" />,
+  sun: <Sun className="h-5 w-5" />,
+  wrench: <Wrench className="h-5 w-5" />,
+  compass: <Compass className="h-5 w-5" />,
+  droplets: <Droplets className="h-5 w-5" />,
+  shirt: <Shirt className="h-5 w-5" />,
+  footprints: <Footprints className="h-5 w-5" />,
+  "map-pin": <MapPin className="h-5 w-5" />
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ selectedCategory, onCategoryChange }) => {
@@ -45,7 +59,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ selectedCategory, o
   return (
     <div className="mb-6">
       <h2 className="text-lg font-medium mb-3 text-appwhite">Select Measurement Type</h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 max-h-80 overflow-y-auto p-2">
         {validCategories.map((categoryKey) => (
           <button
             key={categoryKey}

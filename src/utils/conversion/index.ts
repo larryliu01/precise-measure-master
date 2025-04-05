@@ -12,6 +12,14 @@ import { powerCategory } from './power';
 import { dataCategory } from './data';
 import { currencyCategory } from './currency';
 import { convertValue } from './convert';
+import { illuminanceCategory } from './illuminance';
+import { screwCategory } from './screw';
+import { siCategory } from './si';
+import { angleCategory } from './angle';
+import { flowrateCategory } from './flowrate';
+import { shoeSizeCategory } from './shoeSize';
+import { clothingSizeCategory } from './clothingSize';
+import { gpsCoordinatesCategory } from './gpsCoordinates';
 
 // Collect all categories
 export const conversionCategories: Record<string, ConversionCategory> = {
@@ -25,7 +33,15 @@ export const conversionCategories: Record<string, ConversionCategory> = {
   pressure: pressureCategory,
   energy: energyCategory,
   power: powerCategory,
-  data: dataCategory
+  data: dataCategory,
+  illuminance: illuminanceCategory,
+  screw: screwCategory,
+  si: siCategory,
+  angle: angleCategory,
+  flowrate: flowrateCategory,
+  shoe_size: shoeSizeCategory,
+  clothing_size: clothingSizeCategory,
+  gps_coordinates: gpsCoordinatesCategory
   // Currency removed from general unit conversion but kept as separate tab
 };
 
