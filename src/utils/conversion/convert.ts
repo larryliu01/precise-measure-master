@@ -22,7 +22,7 @@ export const convertValue = (
   }
 
   // Handle empty or non-numeric input
-  if (value === "" || isNaN(Number(value))) {
+  if (value === "" || (typeof value === 'number' && isNaN(value))) {
     return "";
   }
   

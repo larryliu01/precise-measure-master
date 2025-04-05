@@ -48,7 +48,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ selectedCategory, o
           >
             <div className="flex items-center">
               {iconMap[conversionCategories[categoryKey].icon]}
-              <span className="ml-2 hidden sm:inline">
+              <span className="ml-2">
                 {conversionCategories[categoryKey].name}
               </span>
             </div>

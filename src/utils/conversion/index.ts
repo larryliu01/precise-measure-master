@@ -11,6 +11,7 @@ import { pressureCategory } from './pressure';
 import { energyCategory } from './energy';
 import { powerCategory } from './power';
 import { dataCategory } from './data';
+import { currencyCategory } from './currency';
 import { convertValue } from './convert';
 
 // Collect all categories
@@ -25,7 +26,8 @@ export const conversionCategories: Record<string, ConversionCategory> = {
   pressure: pressureCategory,
   energy: energyCategory,
   power: powerCategory,
-  data: dataCategory
+  data: dataCategory,
+  currency: currencyCategory
 };
 
 // Export everything
