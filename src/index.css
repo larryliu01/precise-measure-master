@@ -61,8 +61,17 @@
 
 .input-field {
   @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/50 p-3 text-white w-full 
-  focus:outline-none focus:ring-2 focus:ring-appcyan/80 focus:border-appcyan
+  outline-none focus:border-appcyan
   shadow-inner shadow-appcyan/20;
+}
+
+/* Override any browser default focus outlines */
+input:focus,
+select:focus,
+button:focus,
+.glowing-focus:focus,
+.glowing-focus:focus-within {
+  outline: none !important;
 }
 
 .unit-card {

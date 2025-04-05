@@ -76,7 +76,7 @@ const Calculator = () => {
             defaultValue={commonFormulas[0].name} 
             onValueChange={handleFormulaChange}
           >
-            <SelectTrigger className="w-full bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 focus:ring-appcyan/80 shadow-inner shadow-appcyan/20 glowing-focus">
+            <SelectTrigger className="w-full bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus">
               <SelectValue placeholder="Select a calculation" />
             </SelectTrigger>
             <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20 max-h-80">
@@ -119,7 +119,7 @@ const Calculator = () => {
                     defaultValue={input.unit} 
                     onValueChange={(value) => handleUnitChange(input.id, value)}
                   >
-                    <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 focus:ring-appcyan/80 shadow-inner shadow-appcyan/20 glowing-focus">
+                    <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus">
                       <SelectValue placeholder="Unit" />
                     </SelectTrigger>
                     <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">
