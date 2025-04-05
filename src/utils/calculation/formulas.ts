@@ -1,9 +1,8 @@
-
 export interface Formula {
   name: string;
   description: string;
   inputs: FormInput[];
-  calculate: (inputs: Record<string, number>) => {
+  calculate: (inputs: Record<string, number>, unitSelections?: Record<string, string>) => {
     result: number;
     unit: string;
   };
@@ -15,6 +14,7 @@ export interface FormInput {
   placeholder: string;
   unit: string;
   defaultValue?: number;
+  units?: Array<{ value: string; label: string; }>;
 }
 
 export const commonFormulas: Formula[] = [
@@ -22,13 +22,61 @@ export const commonFormulas: Formula[] = [
     name: "Fuel Cost for a Trip",
     description: "Calculate how much you'll spend on fuel for a trip",
     inputs: [
-      { id: "distance", label: "Distance", placeholder: "Enter distance", unit: "miles" },
-      { id: "fuelEfficiency", label: "Fuel Efficiency", placeholder: "Enter MPG", unit: "mpg" },
-      { id: "fuelPrice", label: "Fuel Price", placeholder: "Enter price per gallon", unit: "$/gallon" }
+      { 
+        id: "distance", 
+        label: "Distance", 
+        placeholder: "Enter distance", 
+        unit: "miles",
+        units: [
+          { value: "miles", label: "miles" },
+          { value: "km", label: "kilometers" }
+        ] 
+      },
+      { 
+        id: "fuelEfficiency", 
+        label: "Fuel Efficiency", 
+        placeholder: "Enter efficiency", 
+        unit: "mpg",
+        units: [
+          { value: "mpg", label: "miles/gallon" },
+          { value: "kpl", label: "km/liter" },
+          { value: "l/100km", label: "liters/100km" }
+        ] 
+      },
+      { 
+        id: "fuelPrice", 
+        label: "Fuel Price", 
+        placeholder: "Enter price", 
+        unit: "$/gallon",
+        units: [
+          { value: "$/gallon", label: "$/gallon" },
+          { value: "$/liter", label: "$/liter" }
+        ] 
+      }
     ],
-    calculate: (inputs) => {
-      const gallons = inputs.distance / inputs.fuelEfficiency;
-      const cost = gallons * inputs.fuelPrice;
+    calculate: (inputs, unitSelections = {}) => {
+      let { distance, fuelEfficiency, fuelPrice } = inputs;
+      
+      // Convert distance if needed
+      if (unitSelections.distance === "km") {
+        distance = distance * 0.621371; // Convert km to miles
+      }
+      
+      // Convert fuel efficiency if needed
+      if (unitSelections.fuelEfficiency === "kpl") {
+        fuelEfficiency = fuelEfficiency * 2.352145833; // Convert km/liter to mpg
+      } else if (unitSelections.fuelEfficiency === "l/100km") {
+        fuelEfficiency = 235.214583 / fuelEfficiency; // Convert l/100km to mpg
+      }
+      
+      // Convert fuel price if needed
+      if (unitSelections.fuelPrice === "$/liter") {
+        fuelPrice = fuelPrice * 3.78541; // Convert $/liter to $/gallon
+      }
+      
+      // Calculate with all values normalized to miles, mpg, and $/gallon
+      const gallons = distance / fuelEfficiency;
+      const cost = gallons * fuelPrice;
       return { result: parseFloat(cost.toFixed(2)), unit: "$" };
     }
   },

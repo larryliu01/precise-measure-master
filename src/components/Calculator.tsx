@@ -11,6 +11,7 @@ import {
 const Calculator = () => {
   const [selectedFormula, setSelectedFormula] = useState(commonFormulas[0]);
   const [inputs, setInputs] = useState<Record<string, number>>({});
+  const [unitSelections, setUnitSelections] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ value: number; unit: string } | null>(null);
 
   const handleInputChange = (id: string, value: string) => {
@@ -23,6 +24,10 @@ const Calculator = () => {
       delete newInputs[id];
       setInputs(newInputs);
     }
+  };
+
+  const handleUnitChange = (id: string, unit: string) => {
+    setUnitSelections((prev) => ({ ...prev, [id]: unit }));
   };
 
   const calculateResult = () => {
@@ -40,7 +45,14 @@ const Calculator = () => {
         }
       });
 
-      const calculationResult = selectedFormula.calculate(inputsWithDefaults);
+      // Initialize unit selections with defaults for any missing selections
+      selectedFormula.inputs.forEach((input) => {
+        if (input.units && unitSelections[input.id] === undefined) {
+          setUnitSelections(prev => ({ ...prev, [input.id]: input.unit }));
+        }
+      });
+
+      const calculationResult = selectedFormula.calculate(inputsWithDefaults, unitSelections);
       setResult({ value: calculationResult.result, unit: calculationResult.unit });
     }
   };
@@ -51,6 +63,7 @@ const Calculator = () => {
       setSelectedFormula(formula);
       setResult(null);
       setInputs({});
+      setUnitSelections({});
     }
   };
 
@@ -89,16 +102,44 @@ const Calculator = () => {
           {selectedFormula.inputs.map((input) => (
             <div key={input.id} className="mb-4">
               <label htmlFor={input.id} className="block text-sm font-medium text-appwhite/80 mb-1">
-                {input.label} ({input.unit})
+                {input.label}
               </label>
-              <input
-                id={input.id}
-                type="number"
-                placeholder={input.placeholder}
-                defaultValue={input.defaultValue}
-                className="input-field"
-                onChange={(e) => handleInputChange(input.id, e.target.value)}
-              />
+              <div className="flex gap-2">
+                <input
+                  id={input.id}
+                  type="number"
+                  placeholder={input.placeholder}
+                  defaultValue={input.defaultValue}
+                  className="input-field flex-1"
+                  onChange={(e) => handleInputChange(input.id, e.target.value)}
+                />
+                
+                {input.units ? (
+                  <Select 
+                    defaultValue={input.unit} 
+                    onValueChange={(value) => handleUnitChange(input.id, value)}
+                  >
+                    <SelectTrigger className="w-32 bg-appblue-light text-appwhite border-appwhite/20">
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">
+                      {input.units.map((unit) => (
+                        <SelectItem 
+                          key={unit.value} 
+                          value={unit.value}
+                          className="cursor-pointer hover:bg-appblue-dark"
+                        >
+                          {unit.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="inline-flex h-10 w-20 flex-shrink-0 items-center justify-center rounded-md border border-appwhite/20 bg-appblue-light px-3 text-sm text-appwhite">
+                    {input.unit}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 

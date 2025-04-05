@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import CategorySelector from './CategorySelector';
 import ConversionCard from './ConversionCard';
+import CurrencyConverter from './CurrencyConverter';
 import Calculator from './Calculator';
 import { conversionCategories } from '../utils/conversion';
-import { Dollar } from 'lucide-react';
 import Footer from './Footer';
 
 const UnitConverter: React.FC = () => {
@@ -82,17 +81,17 @@ const UnitConverter: React.FC = () => {
         
         <TabsContent value="currency">
           <div className="mb-8">
-            <ConversionCard category="currency" />
+            <CurrencyConverter />
           </div>
           
           <div className="mb-8">
             <h2 className="text-lg font-medium mb-3 text-appwhite">Currency Exchange Tips</h2>
             <div className="unit-card">
               <ul className="list-disc list-inside text-appwhite/80 space-y-2">
-                <li>Exchange rates are approximate and may vary</li>
+                <li>Exchange rates are updated from the internet in real-time</li>
                 <li>Use the swap button to reverse the conversion direction</li>
-                <li>All conversions happen in real-time as you type</li>
-                <li>Base currency is US Dollar (USD)</li>
+                <li>The refresh button updates to the latest exchange rates</li>
+                <li>Rates are cached for one hour to minimize API calls</li>
               </ul>
             </div>
           </div>
