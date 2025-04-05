@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import ConversionInput from "./ConversionInput";
-import { convertValue, conversionCategories } from "../utils/conversionUtils";
+import { convertValue, conversionCategories } from "../utils/conversion";
 import { ArrowDownUp } from "lucide-react";
 
 interface ConversionCardProps {

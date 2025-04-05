@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CategorySelector from './CategorySelector';
 import ConversionCard from './ConversionCard';
-import { conversionCategories } from '../utils/conversionUtils';
+import { conversionCategories } from '../utils/conversion';
 import Footer from './Footer';
 
 const UnitConverter: React.FC = () => {

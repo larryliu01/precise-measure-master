@@ -1,6 +1,6 @@
 
 import React from "react";
-import { conversionCategories } from "../utils/conversionUtils";
+import { conversionCategories } from "../utils/conversion";
 
 interface UnitSelectorProps {
   category: string;
