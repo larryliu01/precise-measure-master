@@ -1,7 +1,12 @@
-
 import React, { useState } from "react";
 import { commonFormulas } from "../utils/calculation/formulas";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Calculator = () => {
   const [selectedFormula, setSelectedFormula] = useState(commonFormulas[0]);
@@ -40,35 +45,39 @@ const Calculator = () => {
     }
   };
 
+  const handleFormulaChange = (value: string) => {
+    const formula = commonFormulas.find(f => f.name === value);
+    if (formula) {
+      setSelectedFormula(formula);
+      setResult(null);
+      setInputs({});
+    }
+  };
+
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-lg font-medium mb-3 text-appwhite">Choose Calculation</h2>
-        <div className="overflow-x-auto pb-2">
-          <Tabs 
+        <div className="mb-4">
+          <Select 
             defaultValue={commonFormulas[0].name} 
-            onValueChange={(value) => {
-              const formula = commonFormulas.find(f => f.name === value);
-              if (formula) {
-                setSelectedFormula(formula);
-                setResult(null);
-                setInputs({});
-              }
-            }}
-            className="w-full"
+            onValueChange={handleFormulaChange}
           >
-            <TabsList className="bg-appblue-light mb-4 w-full overflow-x-auto flex whitespace-nowrap">
+            <SelectTrigger className="w-full bg-appblue-light text-appwhite border-appwhite/20">
+              <SelectValue placeholder="Select a calculation" />
+            </SelectTrigger>
+            <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20 max-h-80">
               {commonFormulas.map((formula) => (
-                <TabsTrigger 
+                <SelectItem 
                   key={formula.name} 
                   value={formula.name}
-                  className="text-appwhite"
+                  className="cursor-pointer hover:bg-appblue-dark"
                 >
                   {formula.name}
-                </TabsTrigger>
+                </SelectItem>
               ))}
-            </TabsList>
-          </Tabs>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
