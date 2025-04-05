@@ -1,4 +1,3 @@
-
 import { ConversionCategory } from './types';
 
 export const powerCategory: ConversionCategory = {
@@ -55,6 +54,14 @@ export const powerCategory: ConversionCategory = {
       label: "Tons of Refrigeration",
       toBase: (tr: number) => tr * 3516.8528420667,
       fromBase: (w: number) => w / 3516.8528420667
+    },
+    "dbm": {
+      label: "Decibel-milliwatts (dBm)",
+      // Convert dBm to watts: P(W) = 10^((dBm - 30)/10)
+      toBase: (dbm: number) => Math.pow(10, (dbm - 30) / 10),
+      // Convert watts to dBm: P(dBm) = 10 * log10(P(W)) + 30
+      // Handle values <= 0 gracefully (theoretical minimum for real-world applications)
+      fromBase: (w: number) => w <= 0 ? -174 : 10 * Math.log10(w) + 30
     }
   }
 };
