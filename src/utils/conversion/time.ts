@@ -1,4 +1,3 @@
-
 import { ConversionCategory } from './types';
 
 export const timeCategory: ConversionCategory = {
@@ -47,12 +46,12 @@ export const timeCategory: ConversionCategory = {
       fromBase: (s: number) => s / 604800
     },
     "months": {
-      label: "Months (approx.)",
+      label: "Months (m)",
       toBase: (m: number) => m * 2628000,
       fromBase: (s: number) => s / 2628000
     },
     "years": {
-      label: "Years (approx.)",
+      label: "Years (y)",
       toBase: (y: number) => y * 31536000,
       fromBase: (s: number) => s / 31536000
     }

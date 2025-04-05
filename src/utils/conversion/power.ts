@@ -10,6 +10,11 @@ export const powerCategory: ConversionCategory = {
       toBase: (w: number) => w,
       fromBase: (w: number) => w
     },
+    "milliwatts": {
+      label: "Milliwatts (mW)",
+      toBase: (mw: number) => mw / 1000,
+      fromBase: (w: number) => w * 1000
+    },
     "kilowatts": {
       label: "Kilowatts (kW)",
       toBase: (kw: number) => kw * 1000,

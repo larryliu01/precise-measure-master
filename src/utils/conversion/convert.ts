@@ -105,14 +105,13 @@ export const convertValue = (
       (value.includes("h") || value.includes("min") || value.includes("sec") || 
        value.includes("hour") || value.includes("minute") || value.includes("second"))) {
     
-    // Parse the time expression
+    // Parse the time expression to get total seconds
     const totalSeconds = parseTimeExpression(value);
     
-    // Convert to the base unit (seconds)
-    const baseValue = categoryData.units[fromUnit].toBase(totalSeconds);
-    
-    // Convert from base to target unit
-    return categoryData.units[toUnit].fromBase(baseValue);
+    // For time expressions, we always use seconds as the base unit
+    // regardless of what's selected in fromUnit
+    // Then convert from seconds to the target unit
+    return categoryData.units[toUnit].fromBase(totalSeconds);
   }
   
   // Standard conversion for numeric values

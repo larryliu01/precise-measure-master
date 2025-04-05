@@ -25,6 +25,9 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
 }) => {
   // Local state for input value - keeps the full text including units
   const [inputText, setInputText] = useState<string>(value);
+  // Local state for GPS coordinates
+  const [latValue, setLatValue] = useState<string>("");
+  const [longValue, setLongValue] = useState<string>("");
   // Keep reference to the last unit that was detected
   const lastDetectedUnitRef = useRef<string>("");
   
@@ -32,10 +35,24 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   useEffect(() => {
     // Only update if the value has actually changed and it's different from inputText
     // This avoids unnecessary updates during typing
-    if (value !== inputText) {
+    if (value !== inputText && category !== "gps_coordinates") {
       setInputText(value);
     }
-  }, [value]);
+    
+    // For GPS coordinates, parse the incoming value
+    if (category === "gps_coordinates" && value) {
+      try {
+        // Check if value is in the format "lat,long"
+        const parts = value.split(',');
+        if (parts.length === 2) {
+          setLatValue(parts[0].trim());
+          setLongValue(parts[1].trim());
+        }
+      } catch (e) {
+        console.error("Error parsing GPS coordinates", e);
+      }
+    }
+  }, [value, category]);
   
   // Get abbreviation for a unit
   const getUnitAbbreviation = (unitKey: string) => {
@@ -134,7 +151,87 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
     // This allows the user to continue typing units
     onValueChange(input);
   };
+  
+  // Handle GPS coordinate changes
+  const handleGpsCoordinateChange = (lat: string, long: string) => {
+    setLatValue(lat);
+    setLongValue(long);
+    onValueChange(`${lat},${long}`);
+  };
+  
+  // Detect GPS coordinate symbols and update units
+  const handleGpsSymbolDetection = (value: string) => {
+    // Check for degree symbols to detect DMS/DDM format
+    if (value.includes('°') && !value.includes("'") && !value.includes('"')) {
+      // Just degrees symbol - likely DDM format
+      if (unit !== "degrees_decimal_minutes") {
+        onUnitChange("degrees_decimal_minutes");
+      }
+    } else if (value.includes('°') && (value.includes("'") || value.includes('"'))) {
+      // Degrees and minutes/seconds symbols - likely DMS format
+      if (unit !== "degrees_minutes_seconds") {
+        onUnitChange("degrees_minutes_seconds");
+      }
+    }
+  };
 
+  // Render GPS coordinate inputs when appropriate
+  if (category === "gps_coordinates") {
+    return (
+      <div className="mb-4 w-full">
+        <div className="w-full">
+          <label className="block text-sm font-medium text-appwhite/80 mb-1">
+            {label}
+          </label>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-appwhite/80 w-12">Lat:</label>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={latValue}
+                  onChange={(e) => {
+                    const newLat = e.target.value;
+                    handleGpsSymbolDetection(newLat);
+                    handleGpsCoordinateChange(newLat, longValue);
+                  }}
+                  placeholder="Latitude"
+                  readOnly={readOnly}
+                  className="input-field"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-appwhite/80 w-12">Long:</label>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={longValue}
+                  onChange={(e) => {
+                    const newLong = e.target.value;
+                    handleGpsSymbolDetection(newLong);
+                    handleGpsCoordinateChange(latValue, newLong);
+                  }}
+                  placeholder="Longitude"
+                  readOnly={readOnly}
+                  className="input-field"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <UnitSelector
+          category={category}
+          value={unit}
+          onChange={onUnitChange}
+          label="Unit"
+          id={`${label.toLowerCase()}-unit-selector`}
+        />
+      </div>
+    );
+  }
+
+  // Standard render for non-GPS inputs
   return (
     <div className="mb-4 w-full">
       <div className="w-full">
