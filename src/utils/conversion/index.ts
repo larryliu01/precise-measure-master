@@ -10,6 +10,7 @@ import { pressureCategory } from './pressure';
 import { energyCategory } from './energy';
 import { powerCategory } from './power';
 import { dataCategory } from './data';
+import { currencyCategory } from './currency';
 import { convertValue } from './convert';
 
 // Collect all categories
@@ -25,11 +26,13 @@ export const conversionCategories: Record<string, ConversionCategory> = {
   energy: energyCategory,
   power: powerCategory,
   data: dataCategory
+  // Currency removed from general unit conversion but kept as separate tab
 };
 
 // Export everything
 export {
   parseFeetInches,
   formatFeetInches,
-  convertValue
+  convertValue,
+  currencyCategory
 };

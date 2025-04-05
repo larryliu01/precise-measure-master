@@ -1,5 +1,4 @@
-
-import { conversionCategories } from './index';
+import { conversionCategories, currencyCategory } from './index';
 import { parseFeetInches, formatFeetInches } from './length';
 
 // Helper function to convert values
@@ -9,12 +8,15 @@ export const convertValue = (
   toUnit: string, 
   category: string
 ): number | string => {
+  // Handle currency as a special case if it's not in the conversionCategories
+  const categoryData = category === 'currency' && !conversionCategories[category]
+    ? currencyCategory
+    : conversionCategories[category];
+  
   // Check if the input is a valid category
-  if (!conversionCategories[category]) {
+  if (!categoryData) {
     return "Invalid category";
   }
-  
-  const categoryData = conversionCategories[category];
   
   // Check if units are valid
   if (!categoryData.units[fromUnit] || !categoryData.units[toUnit]) {

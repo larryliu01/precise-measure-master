@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import ConversionInput from "./ConversionInput";
-import { convertValue, conversionCategories } from "../utils/conversion";
+import { convertValue, conversionCategories, currencyCategory } from "../utils/conversion";
 import { ArrowDownUp } from "lucide-react";
 
 interface ConversionCardProps {
@@ -16,9 +15,15 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
 
   // Set default units when category changes
   useEffect(() => {
+    // Handle currency as special case if it's not in conversionCategories
+    const categoryData = category === 'currency' && !conversionCategories[category] 
+      ? currencyCategory
+      : conversionCategories[category];
+      
     const units = Object.keys(
-      category ? conversionCategories[category].units : {}
+      categoryData ? categoryData.units : {}
     );
+    
     if (units.length > 0) {
       setFromUnit(units[0]);
       setToUnit(units.length > 1 ? units[1] : units[0]);

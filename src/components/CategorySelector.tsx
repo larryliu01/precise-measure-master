@@ -1,4 +1,3 @@
-
 import React from "react";
 import { conversionCategories } from "../utils/conversion";
 import { 
@@ -33,11 +32,21 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ selectedCategory, onCategoryChange }) => {
+  // Ensure we're only showing categories that exist in conversionCategories
+  const validCategories = Object.keys(conversionCategories);
+  
+  // If the selected category is no longer valid, update it
+  React.useEffect(() => {
+    if (selectedCategory && !validCategories.includes(selectedCategory)) {
+      onCategoryChange(validCategories[0] || "length");
+    }
+  }, [selectedCategory, validCategories, onCategoryChange]);
+
   return (
     <div className="mb-6">
       <h2 className="text-lg font-medium mb-3 text-appwhite">Select Measurement Type</h2>
       <div className="flex flex-wrap gap-2">
-        {Object.keys(conversionCategories).map((categoryKey) => (
+        {validCategories.map((categoryKey) => (
           <button
             key={categoryKey}
             onClick={() => onCategoryChange(categoryKey)}

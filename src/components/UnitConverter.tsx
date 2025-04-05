@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import CategorySelector from './CategorySelector';
 import ConversionCard from './ConversionCard';
+import CurrencyConverter from './CurrencyConverter';
 import Calculator from './Calculator';
 import { conversionCategories } from '../utils/conversion';
 import Footer from './Footer';
@@ -30,8 +31,9 @@ const UnitConverter: React.FC = () => {
       </header>
 
       <Tabs defaultValue="units" className="w-full mb-6">
-        <TabsList className="grid grid-cols-2 mb-6">
+        <TabsList className="grid grid-cols-3 mb-6">
           <TabsTrigger value="units">Unit Conversion</TabsTrigger>
+          <TabsTrigger value="currency">Currency</TabsTrigger>
           <TabsTrigger value="calculator">Daily Math</TabsTrigger>
         </TabsList>
         
@@ -72,6 +74,24 @@ const UnitConverter: React.FC = () => {
                 <li>Use the swap button to reverse the conversion direction</li>
                 <li>All conversions happen in real-time as you type</li>
                 <li>Your recently used measurement types appear below the converter</li>
+              </ul>
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="currency">
+          <div className="mb-8">
+            <CurrencyConverter />
+          </div>
+          
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-3 text-appwhite">Currency Exchange Tips</h2>
+            <div className="unit-card">
+              <ul className="list-disc list-inside text-appwhite/80 space-y-2">
+                <li>Exchange rates are updated from the internet in real-time</li>
+                <li>Use the swap button to reverse the conversion direction</li>
+                <li>The refresh button updates to the latest exchange rates</li>
+                <li>Rates are cached for one hour to minimize API calls</li>
               </ul>
             </div>
           </div>
