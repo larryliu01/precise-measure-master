@@ -716,4 +716,31 @@ export const convertValue = (
        value.includes('"') || value.includes("inches"))) {
     
     // Parse the feet/inches format
-    const feetDecimal = parseFeet
+    const feetDecimal = parseFeetInches(value);
+    
+    // Convert from feet to meters (base unit)
+    const meters = categoryData.units.feet.toBase(feetDecimal);
+    
+    // Convert from meters to the target unit
+    const result = categoryData.units[toUnit].fromBase(meters);
+    
+    if (toUnit === "feet") {
+      return formatFeetInches(result);
+    }
+    
+    return result;
+  }
+  
+  // Standard conversion for numeric values
+  try {
+    const numValue = typeof value === "string" ? parseFloat(value) : value;
+    // Convert to base unit
+    const baseValue = categoryData.units[fromUnit].toBase(numValue);
+    // Convert from base unit to target unit
+    const result = categoryData.units[toUnit].fromBase(baseValue);
+    return result;
+  } catch (error) {
+    console.error("Conversion error:", error);
+    return "Error";
+  }
+};
