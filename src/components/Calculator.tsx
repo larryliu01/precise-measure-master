@@ -228,7 +228,8 @@ const Calculator = () => {
                 
                 {input.units ? (
                   <Select 
-                    defaultValue={input.unit} 
+                    defaultValue={input.unit}
+                    value={unitSelections[input.id]}
                     onValueChange={(value) => handleUnitChange(input.id, value)}
                   >
                     <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">

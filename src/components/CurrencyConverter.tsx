@@ -34,7 +34,7 @@ const CurrencyConverter: React.FC = () => {
     // Update last updated timestamp
     if (rates) {
       const now = new Date();
-      setLastUpdated(now.toLocaleTimeString());
+      setLastUpdated(now.toLocaleDateString() + ' ' + now.toLocaleTimeString());
     }
   }, [rates]);
 
@@ -76,7 +76,7 @@ const CurrencyConverter: React.FC = () => {
       
       // Update the timestamp
       const now = new Date();
-      setLastUpdated(now.toLocaleTimeString());
+      setLastUpdated(now.toLocaleDateString() + ' ' + now.toLocaleTimeString());
       
       // Toast notification could be added here
     } catch (err) {
