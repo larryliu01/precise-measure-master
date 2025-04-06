@@ -23,23 +23,24 @@ const Calculator = () => {
   }, [adjustmentMode, selectedFormula.name]);
 
   const handleInputChange = (id: string, value: string) => {
-    if (value === "") {
-      // Explicitly set empty field to undefined
-      const newInputs = { ...inputs };
-      delete newInputs[id];
-      setInputs(newInputs);
+    // Allow empty strings for Distance/Speed/Time and Ohm's Law calculators
+    if ((selectedFormula.name === "Distance, Speed & Time Calculator" || 
+        selectedFormula.name === "Ohm's Law Calculator") && value === "") {
+      const updatedInputs = { ...inputs };
+      delete updatedInputs[id];
+      setInputs(updatedInputs);
       return;
     }
     
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
-      setInputs((prev) => ({ ...prev, [id]: numValue }));
-    } else {
-      // Remove the input if it's not a valid number
-      const newInputs = { ...inputs };
-      delete newInputs[id];
-      setInputs(newInputs);
+      setInputs(prev => ({ ...prev, [id]: numValue }));
     }
+  };
+
+  const clearInputs = () => {
+    setInputs({});
+    setResult(null);
   };
 
   const handleUnitChange = (id: string, unit: string) => {
@@ -224,6 +225,7 @@ const Calculator = () => {
                   defaultValue={input.defaultValue}
                   className="input-field flex-1"
                   onChange={(e) => handleInputChange(input.id, e.target.value)}
+                  value={inputs[input.id] !== undefined ? inputs[input.id] : ""}
                 />
                 
                 {input.units ? (
@@ -248,20 +250,31 @@ const Calculator = () => {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="inline-flex h-10 w-20 flex-shrink-0 items-center justify-center rounded-md border-2 border-appcyan/30 bg-appblue-dark/30 px-3 text-sm text-appwhite shadow-inner shadow-appcyan/20">
+                  input.unit && <div className="flex items-center px-3 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 rounded-md min-w-12 justify-center">
                     {input.unit}
                   </div>
                 )}
               </div>
             </div>
           ))}
-
-          <button 
-            className="main-button w-full mt-4" 
-            onClick={calculateResult}
-          >
-            Calculate
-          </button>
+          
+          <div className="flex gap-4 mt-6 mb-4">
+            <button
+              type="button"
+              onClick={calculateResult}
+              className="primary-button flex-1"
+            >
+              Calculate
+            </button>
+            
+            <button
+              type="button"
+              onClick={clearInputs}
+              className="secondary-button"
+            >
+              Clear
+            </button>
+          </div>
           
           {result && (
             <div className="mt-4 p-4 bg-appblue rounded-lg border border-appwhite/20">
@@ -278,9 +291,14 @@ const Calculator = () => {
                     <p className="text-xl font-bold text-appcyan mb-2">
                       {result.value} {result.unit.split('\n\n')[0]}
                     </p>
-                    <p className="text-appwhite/80 text-sm whitespace-pre-line">
+                    <p className="text-appwhite font-medium text-md mb-1">
                       {result.unit.split('\n\n')[1]}
                     </p>
+                    <div className="text-appwhite/80 text-sm mt-3 p-2 bg-appblue-dark/40 rounded-md border border-appwhite/10">
+                      <p className="whitespace-pre-line">
+                        {result.unit.split('\n\n')[2]}
+                      </p>
+                    </div>
                   </div>
                 ) : selectedFormula.name === "Electricity Cost" || 
                    selectedFormula.name === "Unit Price Comparison" ? (

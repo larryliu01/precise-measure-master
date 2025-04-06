@@ -148,10 +148,12 @@ input:focus-visible,
   @apply bg-appcyan text-appblue border-transparent;
 }
 
-.main-button {
-  @apply bg-appcyan hover:bg-appcyan-dark text-appblue font-medium py-3 px-6 rounded-xl flex items-center justify-center transition-all;
+/* Custom buttons */
+.main-button,
+.primary-button {
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appcyan text-appblue hover:bg-appcyan/90 transition-colors;
 }
 
 .secondary-button {
-  @apply bg-appblue-light hover:bg-secondary text-white font-medium py-3 px-6 rounded-xl flex items-center justify-center transition-all;
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors;
 }

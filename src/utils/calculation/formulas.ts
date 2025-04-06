@@ -435,31 +435,83 @@ export const commonFormulas: Formula[] = [
   },
   {
     name: "Body Mass Index (BMI)",
-    description: "Calculate BMI based on height and weight",
+    description: "Calculate your Body Mass Index (BMI)",
     inputs: [
-      { id: "weight", label: "Weight", placeholder: "Enter weight", unit: "kg" },
-      { id: "height", label: "Height", placeholder: "Enter height", unit: "m" }
+      { 
+        id: "weight", 
+        label: "Weight", 
+        placeholder: "Enter weight", 
+        unit: "kg",
+        units: [
+          { value: "kg", label: "kilograms (kg)" },
+          { value: "lb", label: "pounds (lb)" },
+          { value: "st", label: "stones (st)" }
+        ]
+      },
+      { 
+        id: "height", 
+        label: "Height", 
+        placeholder: "Enter height", 
+        unit: "cm",
+        units: [
+          { value: "cm", label: "centimeters (cm)" },
+          { value: "m", label: "meters (m)" },
+          { value: "in", label: "inches (in)" },
+          { value: "ft", label: "feet (ft)" }
+        ] 
+      },
     ],
-    calculate: (inputs) => {
-      const bmi = inputs.weight / (inputs.height * inputs.height);
-      const bmiValue = parseFloat(bmi.toFixed(1));
+    calculate: (inputs, unitSelections = {}) => {
+      let { weight, height } = inputs;
+      const weightUnit = unitSelections.weight || "kg";
+      const heightUnit = unitSelections.height || "cm";
+      
+      // Convert weight to kg
+      if (weightUnit === "lb") {
+        weight = weight * 0.45359237; // Convert pounds to kg
+      } else if (weightUnit === "st") {
+        weight = weight * 6.35029318; // Convert stones to kg
+      }
+      
+      // Convert height to meters
+      let heightInMeters: number;
+      if (heightUnit === "cm") {
+        heightInMeters = height / 100; // Convert cm to meters
+      } else if (heightUnit === "in") {
+        heightInMeters = height * 0.0254; // Convert inches to meters
+      } else if (heightUnit === "ft") {
+        heightInMeters = height * 0.3048; // Convert feet to meters
+      } else {
+        heightInMeters = height; // Already in meters
+      }
+      
+      // Calculate BMI
+      const bmi = weight / (heightInMeters * heightInMeters);
       
       // Determine BMI category
       let category = "";
-      if (bmiValue < 18.5) {
-        category = " (Underweight)";
-      } else if (bmiValue < 25) {
-        category = " (Normal weight)";
-      } else if (bmiValue < 30) {
-        category = " (Overweight)";
+      if (bmi < 18.5) {
+        category = "Underweight";
+      } else if (bmi >= 18.5 && bmi < 25) {
+        category = "Normal weight";
+      } else if (bmi >= 25 && bmi < 30) {
+        category = "Overweight";
       } else {
-        category = " (Obesity)";
+        category = "Obesity";
       }
       
-      // Create unit label with BMI categories explanation
-      const unit = `kg/m²${category}\n\nBMI Categories:\n• Under 18.5: Underweight\n• 18.5-24.9: Normal weight\n• 25-29.9: Overweight\n• 30 and above: Obesity`;
+      // BMI categories text
+      const categoriesText = 
+        "BMI Categories:\n" +
+        "Underweight: < 18.5\n" +
+        "Normal weight: 18.5 - 24.9\n" +
+        "Overweight: 25 - 29.9\n" +
+        "Obesity: ≥ 30";
       
-      return { result: bmiValue, unit };
+      return { 
+        result: parseFloat(bmi.toFixed(1)), 
+        unit: `kg/m²\n\n${category}\n\n${categoriesText}` 
+      };
     }
   },
   {
