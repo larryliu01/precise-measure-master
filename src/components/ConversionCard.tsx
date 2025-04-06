@@ -67,6 +67,11 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
         return true;
       }
       
+      // Check for decimal degrees with comma (e.g., 22.331345, 114.216131)
+      if (/^-?\d+\.\d+\s*,\s*-?\d+\.\d+$/.test(input)) {
+        return true;
+      }
+      
       // Check for UTM format
       if (/\d+[A-Z]\s+\d+\s+\d+/.test(input)) {
         return true;
