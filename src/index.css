@@ -4,8 +4,14 @@
 
 @layer base {
   :root {
-    --background: 240 33% 15%;
-    --foreground: 210 40% 98%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --appblue: 220 40% 13%;
+    --appblue-light: 215 35% 25%;
+    --appblue-dark: 225 50% 8%;
+    --appcyan: 180 70% 55%;
+    --appwhite: 0 0% 98%;
 
     --card: 240 33% 15%;
     --card-foreground: 210 40% 98%;
@@ -62,7 +68,7 @@
   }
 
   body {
-    @apply bg-appblue text-foreground min-h-screen;
+    @apply bg-gradient-to-br from-appblue to-appblue-dark min-h-screen text-appwhite;
   }
   
   /* Only add glow effect to specific focused elements */
@@ -89,12 +95,78 @@
       box-shadow: 0 0 10px theme('colors.appcyan.DEFAULT'), 0 0 20px theme('colors.appcyan.DEFAULT');
     }
   }
+
+  @keyframes subtle-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+  
+  @keyframes subtle-glow {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(78, 236, 240, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(78, 236, 240, 0.4);
+    }
+  }
 }
 
-.input-field {
-  @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/30 p-3 text-white w-full 
-  outline-none focus:border-appcyan
-  shadow-inner shadow-appcyan/20;
+@layer utilities {
+  .glowing-focus {
+    @apply focus:shadow-[0_0_15px_rgba(78,236,240,0.3)] transition-shadow duration-200;
+  }
+
+  .glow-hover {
+    @apply hover:shadow-[0_0_20px_rgba(78,236,240,0.4)] transition-shadow duration-200;
+  }
+
+  .glow-card {
+    @apply shadow-[0_0_25px_rgba(0,0,0,0.2)] hover:shadow-[0_0_25px_rgba(78,236,240,0.15)] transition-shadow duration-300;
+  }
+
+  .animate-subtle-pulse {
+    animation: subtle-pulse 3s ease-in-out infinite;
+  }
+  
+  .animate-subtle-glow {
+    animation: subtle-glow 4s ease-in-out infinite;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full h-10 px-3 py-2 bg-appblue-dark/30 text-appwhite rounded-md border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 focus:border-appcyan/60 focus:outline-none glowing-focus;
+  }
+
+  /* Custom buttons */
+  .main-button,
+  .primary-button {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appcyan text-appblue hover:bg-appcyan/90 transition-colors glow-hover;
+  }
+  
+  .secondary-button {
+    @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors glow-hover;
+  }
+  
+  .unit-card, .conversion-card {
+    @apply p-4 bg-gradient-to-b from-appblue-light/30 to-appblue/30 rounded-xl border border-appwhite/10 shadow-lg shadow-black/20 backdrop-blur-sm mb-4 glow-card;
+  }
+
+  .app-container {
+    @apply min-h-screen px-4 py-6 flex flex-col;
+  }
+  
+  .app-header {
+    @apply mb-6;
+  }
+  
+  .app-main {
+    @apply flex-1;
+  }
 }
 
 /* Override any browser default focus outlines more aggressively */
@@ -132,28 +204,10 @@ input:focus-visible,
   ring-offset-width: 0 !important;
 }
 
-.unit-card {
-  @apply bg-appblue-light rounded-xl p-5 transition-all hover:shadow-lg hover:shadow-appcyan/10 border border-border/30;
-}
-
-.conversion-card {
-  @apply bg-appblue-light rounded-xl p-6 border border-border/30 mb-4;
-}
-
 .category-button {
   @apply px-4 py-3 bg-appblue-light rounded-xl transition-all hover:bg-appblue-light border border-border/30;
 }
 
 .category-button.active {
   @apply bg-appcyan text-appblue border-transparent;
-}
-
-/* Custom buttons */
-.main-button,
-.primary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appcyan text-appblue hover:bg-appcyan/90 transition-colors;
-}
-
-.secondary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors;
 }
