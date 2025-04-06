@@ -15,6 +15,14 @@ const Calculator = () => {
   const [result, setResult] = useState<{ value: number; unit: string } | null>(null);
 
   const handleInputChange = (id: string, value: string) => {
+    if (value === "") {
+      // Explicitly set empty field to undefined
+      const newInputs = { ...inputs };
+      delete newInputs[id];
+      setInputs(newInputs);
+      return;
+    }
+    
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
       setInputs((prev) => ({ ...prev, [id]: numValue }));
@@ -31,7 +39,24 @@ const Calculator = () => {
   };
 
   const calculateResult = () => {
-    // Check if all required inputs are provided
+    // Special handling for Ohm's Law and Distance/Speed/Time calculators
+    // which are designed to work with one field left empty
+    if (selectedFormula.name === "Ohm's Law Calculator" || 
+        selectedFormula.name === "Distance, Speed & Time Calculator") {
+      
+      // Check if at least 2 inputs are provided
+      const filledInputs = selectedFormula.inputs
+        .filter(input => inputs[input.id] !== undefined)
+        .length;
+      
+      if (filledInputs >= 2) {
+        const calculationResult = selectedFormula.calculate(inputs, unitSelections);
+        setResult({ value: calculationResult.result, unit: calculationResult.unit });
+        return;
+      }
+    }
+    
+    // For other formulas, check if all required inputs are provided
     const allInputsProvided = selectedFormula.inputs.every(
       (input) => inputs[input.id] !== undefined || input.defaultValue !== undefined
     );
@@ -107,7 +132,9 @@ const Calculator = () => {
               <div className="flex gap-2">
                 <input
                   id={input.id}
-                  type="number"
+                  type={selectedFormula.name === "Ohm's Law Calculator" || 
+                       selectedFormula.name === "Distance, Speed & Time Calculator" 
+                       ? "text" : "number"}
                   placeholder={input.placeholder}
                   defaultValue={input.defaultValue}
                   className="input-field flex-1"
