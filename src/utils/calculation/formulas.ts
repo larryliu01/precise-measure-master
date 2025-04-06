@@ -334,13 +334,45 @@ export const commonFormulas: Formula[] = [
     description: "Compare prices of two products to find the best value",
     inputs: [
       { id: "price1", label: "Price of Item 1", placeholder: "Enter price 1", unit: "$" },
-      { id: "quantity1", label: "Quantity of Item 1", placeholder: "Enter quantity 1", unit: "units" },
+      { 
+        id: "quantity1", 
+        label: "Quantity of Item 1", 
+        placeholder: "Enter quantity 1", 
+        unit: "units",
+        units: [
+          { value: "units", label: "units" },
+          { value: "grams", label: "grams" },
+          { value: "kg", label: "kilograms" },
+          { value: "ml", label: "milliliters" },
+          { value: "liters", label: "liters" },
+          { value: "oz", label: "ounces" },
+          { value: "lb", label: "pounds" }
+        ]
+      },
       { id: "price2", label: "Price of Item 2", placeholder: "Enter price 2", unit: "$" },
-      { id: "quantity2", label: "Quantity of Item 2", placeholder: "Enter quantity 2", unit: "units" }
+      { 
+        id: "quantity2", 
+        label: "Quantity of Item 2", 
+        placeholder: "Enter quantity 2", 
+        unit: "units",
+        units: [
+          { value: "units", label: "units" },
+          { value: "grams", label: "grams" },
+          { value: "kg", label: "kilograms" },
+          { value: "ml", label: "milliliters" },
+          { value: "liters", label: "liters" },
+          { value: "oz", label: "ounces" },
+          { value: "lb", label: "pounds" }
+        ]
+      }
     ],
-    calculate: (inputs) => {
+    calculate: (inputs, unitSelections = {}) => {
       const unitPrice1 = inputs.price1 / inputs.quantity1;
       const unitPrice2 = inputs.price2 / inputs.quantity2;
+      
+      // Get unit labels
+      const unit1 = unitSelections.quantity1 || "units";
+      const unit2 = unitSelections.quantity2 || "units";
       
       // Determine which item is cheaper
       let result: number;
@@ -350,16 +382,16 @@ export const commonFormulas: Formula[] = [
         // Item 1 is cheaper
         const savingsPercent = ((unitPrice2 - unitPrice1) / unitPrice2) * 100;
         result = savingsPercent;
-        unit = `Item 1 is better value: $${unitPrice1.toFixed(2)}/unit (${savingsPercent.toFixed(1)}% cheaper than Item 2)`;
+        unit = `Item 1 ($${unitPrice1.toFixed(2)}/${unit1}) is better than Item 2 ($${unitPrice2.toFixed(2)}/${unit2}) (${savingsPercent.toFixed(1)}% cheaper)`;
       } else if (unitPrice2 < unitPrice1) {
         // Item 2 is cheaper
         const savingsPercent = ((unitPrice1 - unitPrice2) / unitPrice1) * 100;
         result = savingsPercent;
-        unit = `Item 2 is better value: $${unitPrice2.toFixed(2)}/unit (${savingsPercent.toFixed(1)}% cheaper than Item 1)`;
+        unit = `Item 2 ($${unitPrice2.toFixed(2)}/${unit2}) is better than Item 1 ($${unitPrice1.toFixed(2)}/${unit1}) (${savingsPercent.toFixed(1)}% cheaper)`;
       } else {
         // Both have the same price
         result = 0;
-        unit = `Same price: $${unitPrice1.toFixed(2)}/unit for both items`;
+        unit = `Same price: $${unitPrice1.toFixed(2)}/${unit1} for both items`;
       }
       
       return { result: parseFloat(result.toFixed(1)), unit };
@@ -389,7 +421,24 @@ export const commonFormulas: Formula[] = [
     ],
     calculate: (inputs) => {
       const bmi = inputs.weight / (inputs.height * inputs.height);
-      return { result: parseFloat(bmi.toFixed(1)), unit: "kg/m²" };
+      const bmiValue = parseFloat(bmi.toFixed(1));
+      
+      // Determine BMI category
+      let category = "";
+      if (bmiValue < 18.5) {
+        category = " (Underweight)";
+      } else if (bmiValue < 25) {
+        category = " (Normal weight)";
+      } else if (bmiValue < 30) {
+        category = " (Overweight)";
+      } else {
+        category = " (Obesity)";
+      }
+      
+      // Create unit label with BMI categories explanation
+      const unit = `kg/m²${category}\n\nBMI Categories:\n• Under 18.5: Underweight\n• 18.5-24.9: Normal weight\n• 25-29.9: Overweight\n• 30 and above: Obesity`;
+      
+      return { result: bmiValue, unit };
     }
   },
   {
@@ -401,9 +450,14 @@ export const commonFormulas: Formula[] = [
       { id: "rate", label: "Electricity Rate", placeholder: "Enter rate", unit: "$/kWh", defaultValue: 0.12 }
     ],
     calculate: (inputs) => {
-      const kWh = (inputs.power / 1000) * inputs.hours * 30; // monthly usage
-      const monthlyCost = kWh * inputs.rate;
-      return { result: parseFloat(monthlyCost.toFixed(2)), unit: "$/month" };
+      const kWhPerDay = (inputs.power / 1000) * inputs.hours;
+      const dailyCost = kWhPerDay * inputs.rate;
+      const monthlyCost = dailyCost * 30;
+      
+      // Format result to include both daily and monthly costs
+      const unit = `$${dailyCost.toFixed(2)}/day, $${monthlyCost.toFixed(2)}/month`;
+      
+      return { result: parseFloat(monthlyCost.toFixed(2)), unit };
     }
   }
 ];

@@ -252,9 +252,28 @@ const Calculator = () => {
           {result && (
             <div className="mt-4 p-4 bg-appblue rounded-lg border border-appwhite/20">
               <p className="text-appwhite/80">Result:</p>
-              <p className="text-xl font-bold text-appcyan">
-                {result.value} {result.unit}
-              </p>
+              <div className="mt-1">
+                {selectedFormula.name === "Compound Interest Calculator" || 
+                 selectedFormula.name === "Fuel Cost for a Trip" || 
+                 selectedFormula.name === "Mortgage Payment" ? (
+                  <p className="text-xl font-bold text-appcyan">
+                    ${result.value} {result.unit !== "$" && result.unit !== "$/month" ? result.unit : ""}
+                  </p>
+                ) : selectedFormula.name === "Body Mass Index (BMI)" ? (
+                  <div>
+                    <p className="text-xl font-bold text-appcyan mb-2">
+                      {result.value} {result.unit.split('\n\n')[0]}
+                    </p>
+                    <p className="text-appwhite/80 text-sm whitespace-pre-line">
+                      {result.unit.split('\n\n')[1]}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xl font-bold text-appcyan">
+                    {result.value} {result.unit}
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>
