@@ -26,7 +26,7 @@ const UnitSelector: React.FC<UnitSelectorProps> = ({ category, value, onChange, 
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-appblue-dark/30 rounded-xl border-2 border-appcyan/50 px-3 py-2 text-white w-full outline-none shadow-inner shadow-appcyan/20 no-outline"
+        className="bg-appblue-dark/30 rounded-xl border-2 border-appcyan/30 px-3 py-2 text-white w-full outline-none shadow-inner shadow-appcyan/20 no-outline"
       >
         {Object.keys(units).map((unit) => (
           <option key={unit} value={unit}>

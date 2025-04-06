@@ -298,42 +298,71 @@ export const commonFormulas: Formula[] = [
     }
   },
   {
-    name: "Tip Calculator",
-    description: "Calculate tip amount and total bill",
+    name: "Price Adjustment Calculator",
+    description: "Calculate final price after tax, tip, or discount",
     inputs: [
-      { id: "billAmount", label: "Bill Amount", placeholder: "Enter bill amount", unit: "$" },
-      { id: "tipPercentage", label: "Tip Percentage", placeholder: "Enter tip percentage", unit: "%", defaultValue: 15 }
+      { id: "basePrice", label: "Base Price", placeholder: "Enter original price", unit: "$" },
+      { id: "percentage", label: "Percentage Rate", placeholder: "Enter percentage", unit: "%", defaultValue: 10 }
     ],
-    calculate: (inputs) => {
-      const tipAmount = inputs.billAmount * (inputs.tipPercentage / 100);
-      const total = inputs.billAmount + tipAmount;
-      return { result: parseFloat(total.toFixed(2)), unit: "$" };
+    calculate: (inputs, unitSelections = {}) => {
+      const basePrice = Number(inputs.basePrice || 0);
+      const percentage = Number(inputs.percentage || 0);
+      const adjustmentType = unitSelections.adjustmentMode || "tax"; // Get from button selection
+      
+      let result: number;
+      let adjustmentAmount: number;
+      let unit: string;
+      
+      if (adjustmentType === "discount") {
+        adjustmentAmount = basePrice * (percentage / 100);
+        result = basePrice - adjustmentAmount;
+        unit = `$${basePrice.toFixed(2)} - $${adjustmentAmount.toFixed(2)} = $${result.toFixed(2)}`;
+      } else {
+        // For tax and tip, we add to the base price
+        adjustmentAmount = basePrice * (percentage / 100);
+        result = basePrice + adjustmentAmount;
+        
+        const adjustmentLabel = adjustmentType === "tax" ? "Tax" : "Tip";
+        unit = `$${basePrice.toFixed(2)} + $${adjustmentAmount.toFixed(2)} ${adjustmentLabel} = $${result.toFixed(2)}`;
+      }
+      
+      return { result: parseFloat(result.toFixed(2)), unit };
     }
   },
   {
-    name: "Sales Tax Calculator",
-    description: "Calculate final price with sales tax",
+    name: "Unit Price Comparison",
+    description: "Compare prices of two products to find the best value",
     inputs: [
-      { id: "price", label: "Price before tax", placeholder: "Enter price", unit: "$" },
-      { id: "taxRate", label: "Tax Rate", placeholder: "Enter tax rate", unit: "%", defaultValue: 7 }
+      { id: "price1", label: "Price of Item 1", placeholder: "Enter price 1", unit: "$" },
+      { id: "quantity1", label: "Quantity of Item 1", placeholder: "Enter quantity 1", unit: "units" },
+      { id: "price2", label: "Price of Item 2", placeholder: "Enter price 2", unit: "$" },
+      { id: "quantity2", label: "Quantity of Item 2", placeholder: "Enter quantity 2", unit: "units" }
     ],
     calculate: (inputs) => {
-      const tax = inputs.price * (inputs.taxRate / 100);
-      const total = inputs.price + tax;
-      return { result: parseFloat(total.toFixed(2)), unit: "$" };
-    }
-  },
-  {
-    name: "Discount Calculator",
-    description: "Calculate final price after discount",
-    inputs: [
-      { id: "originalPrice", label: "Original Price", placeholder: "Enter original price", unit: "$" },
-      { id: "discountPercentage", label: "Discount Percentage", placeholder: "Enter discount", unit: "%" }
-    ],
-    calculate: (inputs) => {
-      const discount = inputs.originalPrice * (inputs.discountPercentage / 100);
-      const finalPrice = inputs.originalPrice - discount;
-      return { result: parseFloat(finalPrice.toFixed(2)), unit: "$" };
+      const unitPrice1 = inputs.price1 / inputs.quantity1;
+      const unitPrice2 = inputs.price2 / inputs.quantity2;
+      
+      // Determine which item is cheaper
+      let result: number;
+      let unit: string;
+      
+      if (unitPrice1 < unitPrice2) {
+        // Item 1 is cheaper
+        const savingsPercent = ((unitPrice2 - unitPrice1) / unitPrice2) * 100;
+        result = savingsPercent;
+        unit = `Item 1 is better value: $${unitPrice1.toFixed(2)}/unit (${savingsPercent.toFixed(1)}% cheaper than Item 2)`;
+      } else if (unitPrice2 < unitPrice1) {
+        // Item 2 is cheaper
+        const savingsPercent = ((unitPrice1 - unitPrice2) / unitPrice1) * 100;
+        result = savingsPercent;
+        unit = `Item 2 is better value: $${unitPrice2.toFixed(2)}/unit (${savingsPercent.toFixed(1)}% cheaper than Item 1)`;
+      } else {
+        // Both have the same price
+        result = 0;
+        unit = `Same price: $${unitPrice1.toFixed(2)}/unit for both items`;
+      }
+      
+      return { result: parseFloat(result.toFixed(1)), unit };
     }
   },
   {
@@ -361,34 +390,6 @@ export const commonFormulas: Formula[] = [
     calculate: (inputs) => {
       const bmi = inputs.weight / (inputs.height * inputs.height);
       return { result: parseFloat(bmi.toFixed(1)), unit: "kg/m²" };
-    }
-  },
-  {
-    name: "Time to Destination",
-    description: "Calculate arrival time based on speed and distance",
-    inputs: [
-      { id: "distance", label: "Distance", placeholder: "Enter distance", unit: "miles" },
-      { id: "speed", label: "Average Speed", placeholder: "Enter speed", unit: "mph" }
-    ],
-    calculate: (inputs) => {
-      const hours = inputs.distance / inputs.speed;
-      return { result: parseFloat(hours.toFixed(2)), unit: "hours" };
-    }
-  },
-  {
-    name: "Unit Price Comparison",
-    description: "Compare price per unit of two products",
-    inputs: [
-      { id: "price1", label: "Price of Item 1", placeholder: "Enter price 1", unit: "$" },
-      { id: "quantity1", label: "Quantity of Item 1", placeholder: "Enter quantity 1", unit: "units" },
-      { id: "price2", label: "Price of Item 2", placeholder: "Enter price 2", unit: "$" },
-      { id: "quantity2", label: "Quantity of Item 2", placeholder: "Enter quantity 2", unit: "units" }
-    ],
-    calculate: (inputs) => {
-      const unitPrice1 = inputs.price1 / inputs.quantity1;
-      const unitPrice2 = inputs.price2 / inputs.quantity2;
-      const savings = ((unitPrice1 - unitPrice2) / unitPrice1) * 100;
-      return { result: parseFloat(savings.toFixed(2)), unit: "% savings" };
     }
   },
   {

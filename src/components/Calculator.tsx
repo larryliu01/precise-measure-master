@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { commonFormulas } from "../utils/calculation/formulas";
 import { 
   Select,
@@ -13,6 +13,14 @@ const Calculator = () => {
   const [inputs, setInputs] = useState<Record<string, number>>({});
   const [unitSelections, setUnitSelections] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ value: number; unit: string } | null>(null);
+  const [adjustmentMode, setAdjustmentMode] = useState<string>("tax");
+
+  useEffect(() => {
+    // Set the adjustmentMode in unitSelections when it changes
+    if (selectedFormula.name === "Price Adjustment Calculator") {
+      setUnitSelections(prev => ({ ...prev, adjustmentMode }));
+    }
+  }, [adjustmentMode, selectedFormula.name]);
 
   const handleInputChange = (id: string, value: string) => {
     if (value === "") {
@@ -88,8 +96,70 @@ const Calculator = () => {
       setSelectedFormula(formula);
       setResult(null);
       setInputs({});
-      setUnitSelections({});
+      
+      // Initialize unit selections with defaults for all inputs
+      const initialUnitSelections: Record<string, string> = {};
+      formula.inputs.forEach((input) => {
+        if (input.units) {
+          initialUnitSelections[input.id] = input.unit;
+        }
+      });
+      
+      // For Price Adjustment Calculator, add adjustment mode
+      if (formula.name === "Price Adjustment Calculator") {
+        initialUnitSelections.adjustmentMode = adjustmentMode;
+      }
+      
+      setUnitSelections(initialUnitSelections);
     }
+  };
+
+  // Render Price Adjustment Calculator mode buttons
+  const renderAdjustmentModeButtons = () => {
+    if (selectedFormula.name !== "Price Adjustment Calculator") return null;
+    
+    return (
+      <div className="flex flex-col space-y-2 mb-4">
+        <label className="block text-sm font-medium text-appwhite/80 mb-1">
+          Adjustment Type
+        </label>
+        <div className="flex space-x-2">
+          <button
+            type="button"
+            onClick={() => setAdjustmentMode("tax")}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors ${
+              adjustmentMode === "tax" 
+                ? "bg-appcyan text-appblue font-medium" 
+                : "bg-appblue-dark/30 text-appwhite border border-appcyan/30"
+            }`}
+          >
+            Tax
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdjustmentMode("tip")}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors ${
+              adjustmentMode === "tip" 
+                ? "bg-appcyan text-appblue font-medium" 
+                : "bg-appblue-dark/30 text-appwhite border border-appcyan/30"
+            }`}
+          >
+            Tip
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdjustmentMode("discount")}
+            className={`flex-1 py-2 px-3 rounded-md transition-colors ${
+              adjustmentMode === "discount" 
+                ? "bg-appcyan text-appblue font-medium" 
+                : "bg-appblue-dark/30 text-appwhite border border-appcyan/30"
+            }`}
+          >
+            Discount
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -101,7 +171,7 @@ const Calculator = () => {
             defaultValue={commonFormulas[0].name} 
             onValueChange={handleFormulaChange}
           >
-            <SelectTrigger className="w-full bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
+            <SelectTrigger className="w-full bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
               <SelectValue placeholder="Select a calculation" />
             </SelectTrigger>
             <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20 max-h-80">
@@ -124,6 +194,8 @@ const Calculator = () => {
         <p className="text-appwhite/70 mb-4">{selectedFormula.description}</p>
         
         <div className="space-y-4">
+          {renderAdjustmentModeButtons()}
+          
           {selectedFormula.inputs.map((input) => (
             <div key={input.id} className="mb-4">
               <label htmlFor={input.id} className="block text-sm font-medium text-appwhite/80 mb-1">
@@ -146,7 +218,7 @@ const Calculator = () => {
                     defaultValue={input.unit} 
                     onValueChange={(value) => handleUnitChange(input.id, value)}
                   >
-                    <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/50 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
                       <SelectValue placeholder="Unit" />
                     </SelectTrigger>
                     <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">
@@ -162,7 +234,7 @@ const Calculator = () => {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="inline-flex h-10 w-20 flex-shrink-0 items-center justify-center rounded-md border-2 border-appcyan/50 bg-appblue-dark/30 px-3 text-sm text-appwhite shadow-inner shadow-appcyan/20">
+                  <div className="inline-flex h-10 w-20 flex-shrink-0 items-center justify-center rounded-md border-2 border-appcyan/30 bg-appblue-dark/30 px-3 text-sm text-appwhite shadow-inner shadow-appcyan/20">
                     {input.unit}
                   </div>
                 )}

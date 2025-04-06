@@ -92,7 +92,7 @@
 }
 
 .input-field {
-  @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/50 p-3 text-white w-full 
+  @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/30 p-3 text-white w-full 
   outline-none focus:border-appcyan
   shadow-inner shadow-appcyan/20;
 }
