@@ -59,26 +59,13 @@ export const commonFormulas: Formula[] = [
   },
   {
     name: "Distance, Speed & Time Calculator",
-    description: "Calculate distance, speed, or time based on the other two values",
+    description: "Enter any 2 values to calculate the 3rd. Formula: Distance = Speed × Time",
     inputs: [
-      { 
-        id: "calculation", 
-        label: "Calculate", 
-        placeholder: "Select calculation", 
-        unit: "distance",
-        defaultValue: 0,
-        units: [
-          { value: "distance", label: "Distance" },
-          { value: "speed", label: "Speed" },
-          { value: "time", label: "Time" }
-        ]
-      },
       { 
         id: "distance", 
         label: "Distance", 
-        placeholder: "Enter distance", 
+        placeholder: "Enter distance (leave empty to calculate)", 
         unit: "km",
-        defaultValue: 0,
         units: [
           { value: "km", label: "kilometers" },
           { value: "miles", label: "miles" },
@@ -88,9 +75,8 @@ export const commonFormulas: Formula[] = [
       { 
         id: "speed", 
         label: "Speed", 
-        placeholder: "Enter speed", 
+        placeholder: "Enter speed (leave empty to calculate)", 
         unit: "km/h",
-        defaultValue: 0,
         units: [
           { value: "km/h", label: "km/hour" },
           { value: "mph", label: "miles/hour" },
@@ -100,9 +86,8 @@ export const commonFormulas: Formula[] = [
       { 
         id: "time", 
         label: "Time", 
-        placeholder: "Enter time", 
+        placeholder: "Enter time (leave empty to calculate)", 
         unit: "hours",
-        defaultValue: 0,
         units: [
           { value: "hours", label: "hours" },
           { value: "minutes", label: "minutes" },
@@ -111,40 +96,57 @@ export const commonFormulas: Formula[] = [
       }
     ],
     calculate: (inputs, unitSelections = {}) => {
-      // Ensure all inputs are treated as numbers
-      let distance = Number(inputs.distance || 0);
-      let speed = Number(inputs.speed || 0);
-      let time = Number(inputs.time || 0);
-      const calculationType = String(inputs.calculation || "distance");
+      // Parse input values, allowing for empty fields
+      const distanceInput = inputs.distance === undefined ? "" : String(inputs.distance);
+      const speedInput = inputs.speed === undefined ? "" : String(inputs.speed);
+      const timeInput = inputs.time === undefined ? "" : String(inputs.time);
+      
+      // Count how many fields are filled
+      const filledFields = [
+        distanceInput !== "",
+        speedInput !== "",
+        timeInput !== ""
+      ].filter(Boolean).length;
+      
+      // If fewer than 2 fields are filled, return an error
+      if (filledFields < 2) {
+        return { result: 0, unit: "Please fill any 2 fields" };
+      }
+      
+      // Convert inputs to numbers
+      let distance = distanceInput ? Number(distanceInput) : 0;
+      let speed = speedInput ? Number(speedInput) : 0;
+      let time = timeInput ? Number(timeInput) : 0;
       
       // Normalize units to kilometers, km/h, and hours for calculation
       
       // Convert distance
-      if (unitSelections.distance && unitSelections.distance === "miles") {
+      if (unitSelections.distance === "miles") {
         distance = distance * 1.60934; // miles to km
-      } else if (unitSelections.distance && unitSelections.distance === "m") {
+      } else if (unitSelections.distance === "m") {
         distance = distance / 1000; // m to km
       }
       
       // Convert speed
-      if (unitSelections.speed && unitSelections.speed === "mph") {
+      if (unitSelections.speed === "mph") {
         speed = speed * 1.60934; // mph to km/h
-      } else if (unitSelections.speed && unitSelections.speed === "m/s") {
+      } else if (unitSelections.speed === "m/s") {
         speed = speed * 3.6; // m/s to km/h
       }
       
       // Convert time
-      if (unitSelections.time && unitSelections.time === "minutes") {
+      if (unitSelections.time === "minutes") {
         time = time / 60; // minutes to hours
-      } else if (unitSelections.time && unitSelections.time === "seconds") {
+      } else if (unitSelections.time === "seconds") {
         time = time / 3600; // seconds to hours
       }
       
       let result: number;
       let unit: string;
       
-      // Calculate based on what's requested
-      if (calculationType === "distance") {
+      // Determine which value to calculate based on which fields are empty
+      if (distanceInput === "") {
+        // Calculate distance: distance = speed * time
         result = speed * time;
         unit = unitSelections.distance || "km";
         
@@ -154,8 +156,9 @@ export const commonFormulas: Formula[] = [
         } else if (unit === "m") {
           result = result * 1000; // km to m
         }
-      } else if (calculationType === "speed") {
-        result = distance / time;
+      } else if (speedInput === "") {
+        // Calculate speed: speed = distance / time
+        result = time > 0 ? distance / time : 0;
         unit = unitSelections.speed || "km/h";
         
         // Convert result back to selected unit
@@ -164,8 +167,9 @@ export const commonFormulas: Formula[] = [
         } else if (unit === "m/s") {
           result = result / 3.6; // km/h to m/s
         }
-      } else { // time
-        result = distance / speed;
+      } else {
+        // Calculate time: time = distance / speed
+        result = speed > 0 ? distance / speed : 0;
         unit = unitSelections.time || "hours";
         
         // Convert result back to selected unit
@@ -181,43 +185,50 @@ export const commonFormulas: Formula[] = [
   },
   {
     name: "Ohm's Law Calculator",
-    description: "Calculate voltage, current, or resistance using Ohm's Law",
+    description: "Enter any 2 values to calculate the 3rd. Formula: V = I × R",
     inputs: [
-      { 
-        id: "calculation", 
-        label: "Calculate", 
-        placeholder: "Select calculation", 
-        unit: "voltage",
-        defaultValue: 0,
-        units: [
-          { value: "voltage", label: "Voltage" },
-          { value: "current", label: "Current" },
-          { value: "resistance", label: "Resistance" }
-        ]
-      },
-      { id: "voltage", label: "Voltage", placeholder: "Enter voltage", unit: "V", defaultValue: 0 },
-      { id: "current", label: "Current", placeholder: "Enter current", unit: "A", defaultValue: 0 },
-      { id: "resistance", label: "Resistance", placeholder: "Enter resistance", unit: "Ω", defaultValue: 0 }
+      { id: "voltage", label: "Voltage (V)", placeholder: "Enter voltage (leave empty to calculate)", unit: "V" },
+      { id: "current", label: "Current (I)", placeholder: "Enter current (leave empty to calculate)", unit: "A" },
+      { id: "resistance", label: "Resistance (R)", placeholder: "Enter resistance (leave empty to calculate)", unit: "Ω" }
     ],
     calculate: (inputs) => {
-      // Ensure all inputs are treated as numbers
-      const voltage = Number(inputs.voltage || 0);
-      const current = Number(inputs.current || 0);
-      const resistance = Number(inputs.resistance || 0);
-      const calculationType = String(inputs.calculation || "voltage");
+      // Parse input values, allowing for empty fields
+      const voltageInput = inputs.voltage === undefined ? "" : String(inputs.voltage);
+      const currentInput = inputs.current === undefined ? "" : String(inputs.current);
+      const resistanceInput = inputs.resistance === undefined ? "" : String(inputs.resistance);
+      
+      // Count how many fields are filled
+      const filledFields = [
+        voltageInput !== "",
+        currentInput !== "",
+        resistanceInput !== ""
+      ].filter(Boolean).length;
+      
+      // If fewer than 2 fields are filled, return an error
+      if (filledFields < 2) {
+        return { result: 0, unit: "Please fill any 2 fields" };
+      }
+      
+      // Convert inputs to numbers
+      const voltage = voltageInput ? Number(voltageInput) : 0;
+      const current = currentInput ? Number(currentInput) : 0;
+      const resistance = resistanceInput ? Number(resistanceInput) : 0;
       
       let result: number;
       let unit: string;
       
-      // Ohm's law: V = I × R (Voltage = Current × Resistance)
-      if (calculationType === "voltage") {
+      // Determine which value to calculate based on which fields are empty
+      if (voltageInput === "") {
+        // Calculate voltage: V = I × R
         result = current * resistance;
         unit = "V";
-      } else if (calculationType === "current") {
-        result = voltage / resistance;
+      } else if (currentInput === "") {
+        // Calculate current: I = V / R
+        result = resistance > 0 ? voltage / resistance : 0;
         unit = "A";
-      } else { // resistance
-        result = voltage / current;
+      } else {
+        // Calculate resistance: R = V / I
+        result = current > 0 ? voltage / current : 0;
         unit = "Ω";
       }
       
