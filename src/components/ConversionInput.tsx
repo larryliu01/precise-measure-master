@@ -28,6 +28,15 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   // Local state for GPS coordinates
   const [latValue, setLatValue] = useState<string>("");
   const [longValue, setLongValue] = useState<string>("");
+  // Local state for DMS and DDM components
+  const [latDegrees, setLatDegrees] = useState<string>("");
+  const [latMinutes, setLatMinutes] = useState<string>("");
+  const [latSeconds, setLatSeconds] = useState<string>("");
+  const [latDirection, setLatDirection] = useState<string>("N");
+  const [longDegrees, setLongDegrees] = useState<string>("");
+  const [longMinutes, setLongMinutes] = useState<string>("");
+  const [longSeconds, setLongSeconds] = useState<string>("");
+  const [longDirection, setLongDirection] = useState<string>("E");
   // Keep reference to the last unit that was detected
   const lastDetectedUnitRef = useRef<string>("");
   
@@ -45,14 +54,105 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
         // Check if value is in the format "lat,long"
         const parts = value.split(',');
         if (parts.length === 2) {
-          setLatValue(parts[0].trim());
-          setLongValue(parts[1].trim());
+          const latPart = parts[0].trim();
+          const longPart = parts[1].trim();
+          
+          setLatValue(latPart);
+          setLongValue(longPart);
+          
+          // Parse DMS components if needed
+          if (unit === "degrees_minutes_seconds") {
+            parseAndSetDMS(latPart, true);
+            parseAndSetDMS(longPart, false);
+          } else if (unit === "degrees_decimal_minutes") {
+            parseAndSetDDM(latPart, true);
+            parseAndSetDDM(longPart, false);
+          }
         }
       } catch (e) {
         console.error("Error parsing GPS coordinates", e);
       }
     }
-  }, [value, category]);
+  }, [value, category, unit]);
+  
+  // Parse DMS string and set component values
+  const parseAndSetDMS = (dmsStr: string, isLatitude: boolean) => {
+    // Remove all spaces
+    const normalized = dmsStr.trim();
+    
+    // Extract degrees, minutes, seconds
+    const degMatch = normalized.match(/(-?\d+)°/);
+    const minMatch = normalized.match(/(\d+)['′]/);
+    const secMatch = normalized.match(/(\d+(?:\.\d+)?)["″]/);
+    
+    // Extract direction (N/S/E/W)
+    const dirMatch = normalized.match(/[NSEW]$/i);
+    
+    if (isLatitude) {
+      setLatDegrees(degMatch ? degMatch[1] : "");
+      setLatMinutes(minMatch ? minMatch[1] : "");
+      setLatSeconds(secMatch ? secMatch[1] : "");
+      if (dirMatch) {
+        setLatDirection(dirMatch[0].toUpperCase());
+      } else if (degMatch && parseFloat(degMatch[1]) < 0) {
+        setLatDirection("S");
+        setLatDegrees(Math.abs(parseFloat(degMatch[1])).toString());
+      } else {
+        setLatDirection("N");
+      }
+    } else {
+      setLongDegrees(degMatch ? degMatch[1] : "");
+      setLongMinutes(minMatch ? minMatch[1] : "");
+      setLongSeconds(secMatch ? secMatch[1] : "");
+      if (dirMatch) {
+        setLongDirection(dirMatch[0].toUpperCase());
+      } else if (degMatch && parseFloat(degMatch[1]) < 0) {
+        setLongDirection("W");
+        setLongDegrees(Math.abs(parseFloat(degMatch[1])).toString());
+      } else {
+        setLongDirection("E");
+      }
+    }
+  };
+  
+  // Parse DDM string and set component values
+  const parseAndSetDDM = (ddmStr: string, isLatitude: boolean) => {
+    // Remove all spaces
+    const normalized = ddmStr.trim();
+    
+    // Extract degrees and decimal minutes
+    const degMatch = normalized.match(/(-?\d+)°/);
+    const minMatch = normalized.match(/(\d+(?:\.\d+)?)['′]/);
+    
+    // Extract direction (N/S/E/W)
+    const dirMatch = normalized.match(/[NSEW]$/i);
+    
+    if (isLatitude) {
+      setLatDegrees(degMatch ? degMatch[1] : "");
+      setLatMinutes(minMatch ? minMatch[1] : "");
+      setLatSeconds("");
+      if (dirMatch) {
+        setLatDirection(dirMatch[0].toUpperCase());
+      } else if (degMatch && parseFloat(degMatch[1]) < 0) {
+        setLatDirection("S");
+        setLatDegrees(Math.abs(parseFloat(degMatch[1])).toString());
+      } else {
+        setLatDirection("N");
+      }
+    } else {
+      setLongDegrees(degMatch ? degMatch[1] : "");
+      setLongMinutes(minMatch ? minMatch[1] : "");
+      setLongSeconds("");
+      if (dirMatch) {
+        setLongDirection(dirMatch[0].toUpperCase());
+      } else if (degMatch && parseFloat(degMatch[1]) < 0) {
+        setLongDirection("W");
+        setLongDegrees(Math.abs(parseFloat(degMatch[1])).toString());
+      } else {
+        setLongDirection("E");
+      }
+    }
+  };
   
   // Get abbreviation for a unit
   const getUnitAbbreviation = (unitKey: string) => {
@@ -175,6 +275,47 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
     }
   };
 
+  // Format DMS components to a string
+  const formatDMSComponents = (degrees: string, minutes: string, seconds: string, direction: string) => {
+    let dmsString = "";
+    if (degrees) dmsString += `${degrees}°`;
+    if (minutes) dmsString += ` ${minutes}'`;
+    if (seconds) dmsString += ` ${seconds}"`;
+    if (direction) dmsString += ` ${direction}`;
+    return dmsString.trim();
+  };
+  
+  // Format DDM components to a string
+  const formatDDMComponents = (degrees: string, minutes: string, direction: string) => {
+    let ddmString = "";
+    if (degrees) ddmString += `${degrees}°`;
+    if (minutes) ddmString += ` ${minutes}'`;
+    if (direction) ddmString += ` ${direction}`;
+    return ddmString.trim();
+  };
+  
+  // Handle DMS input changes
+  const handleDMSChange = (isLatitude: boolean) => {
+    if (isLatitude) {
+      const dmsString = formatDMSComponents(latDegrees, latMinutes, latSeconds, latDirection);
+      handleGpsCoordinateChange(dmsString, longValue);
+    } else {
+      const dmsString = formatDMSComponents(longDegrees, longMinutes, longSeconds, longDirection);
+      handleGpsCoordinateChange(latValue, dmsString);
+    }
+  };
+  
+  // Handle DDM input changes
+  const handleDDMChange = (isLatitude: boolean) => {
+    if (isLatitude) {
+      const ddmString = formatDDMComponents(latDegrees, latMinutes, latDirection);
+      handleGpsCoordinateChange(ddmString, longValue);
+    } else {
+      const ddmString = formatDDMComponents(longDegrees, longMinutes, longDirection);
+      handleGpsCoordinateChange(latValue, ddmString);
+    }
+  };
+
   // Render GPS coordinate inputs when appropriate
   if (category === "gps_coordinates") {
     return (
@@ -184,39 +325,310 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
             {label}
           </label>
           <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-appwhite/80 w-12">Lat:</label>
-              <div className="flex-grow">
-                <input
-                  type="text"
-                  value={latValue}
-                  onChange={(e) => {
-                    const newLat = e.target.value;
-                    handleGpsSymbolDetection(newLat);
-                    handleGpsCoordinateChange(newLat, longValue);
-                  }}
-                  placeholder="Latitude"
-                  readOnly={readOnly}
-                  className="input-field"
-                />
-              </div>
+            {/* Latitude Inputs */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-appwhite/80">Latitude:</label>
+              
+              {unit === "decimal_degrees" && (
+                // Single input for decimal degrees
+                <div className="flex items-center gap-2">
+                  <div className="flex-grow">
+                    <input
+                      type="text"
+                      value={latValue}
+                      onChange={(e) => {
+                        const newLat = e.target.value;
+                        handleGpsCoordinateChange(newLat, longValue);
+                      }}
+                      placeholder="Decimal degrees (e.g. 40.7128)"
+                      readOnly={readOnly}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {unit === "degrees_minutes_seconds" && (
+                // Multiple inputs for DMS format
+                <div className="flex items-center gap-1">
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={latDegrees}
+                      onChange={(e) => {
+                        setLatDegrees(e.target.value);
+                        handleDMSChange(true);
+                      }}
+                      placeholder="Degrees"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">°</span>
+                  </div>
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={latMinutes}
+                      onChange={(e) => {
+                        setLatMinutes(e.target.value);
+                        handleDMSChange(true);
+                      }}
+                      placeholder="Min"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">'</span>
+                  </div>
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={latSeconds}
+                      onChange={(e) => {
+                        setLatSeconds(e.target.value);
+                        handleDMSChange(true);
+                      }}
+                      placeholder="Sec"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">"</span>
+                  </div>
+                  <div className="w-1/5">
+                    <select
+                      value={latDirection}
+                      onChange={(e) => {
+                        setLatDirection(e.target.value);
+                        handleDMSChange(true);
+                      }}
+                      disabled={readOnly}
+                      className="input-field text-center"
+                    >
+                      <option value="N">N</option>
+                      <option value="S">S</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              {unit === "degrees_decimal_minutes" && (
+                // Multiple inputs for DDM format
+                <div className="flex items-center gap-1">
+                  <div className="w-1/4">
+                    <input
+                      type="text"
+                      value={latDegrees}
+                      onChange={(e) => {
+                        setLatDegrees(e.target.value);
+                        handleDDMChange(true);
+                      }}
+                      placeholder="Degrees"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">°</span>
+                  </div>
+                  <div className="w-2/5">
+                    <input
+                      type="text"
+                      value={latMinutes}
+                      onChange={(e) => {
+                        setLatMinutes(e.target.value);
+                        handleDDMChange(true);
+                      }}
+                      placeholder="Decimal Min"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">'</span>
+                  </div>
+                  <div className="w-1/4">
+                    <select
+                      value={latDirection}
+                      onChange={(e) => {
+                        setLatDirection(e.target.value);
+                        handleDDMChange(true);
+                      }}
+                      disabled={readOnly}
+                      className="input-field text-center"
+                    >
+                      <option value="N">N</option>
+                      <option value="S">S</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              {/* Other formats that aren't DMS or DDM can use the single input */}
+              {unit !== "decimal_degrees" && unit !== "degrees_minutes_seconds" && unit !== "degrees_decimal_minutes" && (
+                <div className="flex items-center gap-2">
+                  <div className="flex-grow">
+                    <input
+                      type="text"
+                      value={latValue}
+                      onChange={(e) => {
+                        const newLat = e.target.value;
+                        handleGpsCoordinateChange(newLat, longValue);
+                      }}
+                      placeholder="Latitude"
+                      readOnly={readOnly}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-appwhite/80 w-12">Long:</label>
-              <div className="flex-grow">
-                <input
-                  type="text"
-                  value={longValue}
-                  onChange={(e) => {
-                    const newLong = e.target.value;
-                    handleGpsSymbolDetection(newLong);
-                    handleGpsCoordinateChange(latValue, newLong);
-                  }}
-                  placeholder="Longitude"
-                  readOnly={readOnly}
-                  className="input-field"
-                />
-              </div>
+            
+            {/* Longitude Inputs */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-appwhite/80">Longitude:</label>
+              
+              {unit === "decimal_degrees" && (
+                // Single input for decimal degrees
+                <div className="flex items-center gap-2">
+                  <div className="flex-grow">
+                    <input
+                      type="text"
+                      value={longValue}
+                      onChange={(e) => {
+                        const newLong = e.target.value;
+                        handleGpsCoordinateChange(latValue, newLong);
+                      }}
+                      placeholder="Decimal degrees (e.g. -74.0060)"
+                      readOnly={readOnly}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {unit === "degrees_minutes_seconds" && (
+                // Multiple inputs for DMS format
+                <div className="flex items-center gap-1">
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={longDegrees}
+                      onChange={(e) => {
+                        setLongDegrees(e.target.value);
+                        handleDMSChange(false);
+                      }}
+                      placeholder="Degrees"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">°</span>
+                  </div>
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={longMinutes}
+                      onChange={(e) => {
+                        setLongMinutes(e.target.value);
+                        handleDMSChange(false);
+                      }}
+                      placeholder="Min"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">'</span>
+                  </div>
+                  <div className="w-1/5">
+                    <input
+                      type="text"
+                      value={longSeconds}
+                      onChange={(e) => {
+                        setLongSeconds(e.target.value);
+                        handleDMSChange(false);
+                      }}
+                      placeholder="Sec"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">"</span>
+                  </div>
+                  <div className="w-1/5">
+                    <select
+                      value={longDirection}
+                      onChange={(e) => {
+                        setLongDirection(e.target.value);
+                        handleDMSChange(false);
+                      }}
+                      disabled={readOnly}
+                      className="input-field text-center"
+                    >
+                      <option value="E">E</option>
+                      <option value="W">W</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              {unit === "degrees_decimal_minutes" && (
+                // Multiple inputs for DDM format
+                <div className="flex items-center gap-1">
+                  <div className="w-1/4">
+                    <input
+                      type="text"
+                      value={longDegrees}
+                      onChange={(e) => {
+                        setLongDegrees(e.target.value);
+                        handleDDMChange(false);
+                      }}
+                      placeholder="Degrees"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">°</span>
+                  </div>
+                  <div className="w-2/5">
+                    <input
+                      type="text"
+                      value={longMinutes}
+                      onChange={(e) => {
+                        setLongMinutes(e.target.value);
+                        handleDDMChange(false);
+                      }}
+                      placeholder="Decimal Min"
+                      readOnly={readOnly}
+                      className="input-field text-center"
+                    />
+                    <span className="text-xs text-center block">'</span>
+                  </div>
+                  <div className="w-1/4">
+                    <select
+                      value={longDirection}
+                      onChange={(e) => {
+                        setLongDirection(e.target.value);
+                        handleDDMChange(false);
+                      }}
+                      disabled={readOnly}
+                      className="input-field text-center"
+                    >
+                      <option value="E">E</option>
+                      <option value="W">W</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              {/* Other formats that aren't DMS or DDM can use the single input */}
+              {unit !== "decimal_degrees" && unit !== "degrees_minutes_seconds" && unit !== "degrees_decimal_minutes" && (
+                <div className="flex items-center gap-2">
+                  <div className="flex-grow">
+                    <input
+                      type="text"
+                      value={longValue}
+                      onChange={(e) => {
+                        const newLong = e.target.value;
+                        handleGpsCoordinateChange(latValue, newLong);
+                      }}
+                      placeholder="Longitude"
+                      readOnly={readOnly}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
