@@ -6,8 +6,14 @@ const parseTimeExpression = (value: string): number => {
   // Normalize the string first (remove spaces, convert to lowercase)
   const normalized = value.toLowerCase().replace(/\s+/g, '');
   
+  // Look for days pattern (e.g., 3d, 3day, 3days)
+  const daysMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:d|day|days)/g));
+  let days = 0;
+  for (const match of daysMatches) {
+    days += parseFloat(match[1]);
+  }
+  
   // Look for hours pattern (e.g., 4h, 4hr, 4hrs)
-  // Use global flag to find all matches
   const hoursMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:h|hr|hour|hours)/g));
   let hours = 0;
   for (const match of hoursMatches) {
@@ -39,8 +45,15 @@ const parseTimeExpression = (value: string): number => {
     seconds += parseFloat(match[1]);
   }
   
+  // Look for months pattern (e.g., 2mo, 2month, 2months)
+  const monthsMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:mo|month|months)/g));
+  let months = 0;
+  for (const match of monthsMatches) {
+    months += parseFloat(match[1]);
+  }
+  
   // If we couldn't parse anything, try to interpret as the current unit
-  if (hours === 0 && minutes === 0 && seconds === 0) {
+  if (days === 0 && hours === 0 && minutes === 0 && seconds === 0 && months === 0) {
     const numericMatch = normalized.match(/^(\d+(?:\.\d+)?)$/);
     if (numericMatch) {
       return parseFloat(numericMatch[1]);
@@ -48,7 +61,7 @@ const parseTimeExpression = (value: string): number => {
   }
   
   // Convert all to seconds as the common unit
-  return hours * 3600 + minutes * 60 + seconds;
+  return months * 2628000 + days * 86400 + hours * 3600 + minutes * 60 + seconds;
 };
 
 // Helper function to convert values
@@ -94,7 +107,7 @@ export const convertValue = (
     const result = categoryData.units[toUnit].fromBase(meters);
     
     if (toUnit === "feet") {
-      return formatFeetInches(result);
+      return formatFeetInches(Number(result));
     }
     
     return result;
@@ -103,7 +116,9 @@ export const convertValue = (
   // Special case for time expressions like "4h30min"
   if (category === "time" && typeof value === "string" &&
       (value.includes("h") || value.includes("min") || value.includes("sec") || 
-       value.includes("hour") || value.includes("minute") || value.includes("second"))) {
+       value.includes("hour") || value.includes("minute") || value.includes("second") ||
+       value.includes("d") || value.includes("day") || value.includes("days") ||
+       value.includes("mo") || value.includes("month") || value.includes("months"))) {
     
     // Parse the time expression to get total seconds
     const totalSeconds = parseTimeExpression(value);
@@ -111,12 +126,32 @@ export const convertValue = (
     // For time expressions, we always use seconds as the base unit
     // regardless of what's selected in fromUnit
     // Then convert from seconds to the target unit
-    return categoryData.units[toUnit].fromBase(totalSeconds);
+    const result = categoryData.units[toUnit].fromBase(totalSeconds);
+    return result;
+  }
+  
+  // Special case for days and months combined input in time
+  if (category === "time" && typeof value === "string" && 
+      (value.includes("day") || value.includes("days") || value.includes("d") ||
+       value.includes("month") || value.includes("months") || value.includes("mo"))) {
+    
+    // Parse the time expression to get total seconds
+    const totalSeconds = parseTimeExpression(value);
+    
+    // Convert from seconds to the target unit
+    const result = categoryData.units[toUnit].fromBase(totalSeconds);
+    return result;
   }
   
   // Standard conversion for numeric values
   try {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
+    
+    // Check for NaN before proceeding with conversion
+    if (isNaN(numValue)) {
+      return "";
+    }
+    
     // Convert to base unit
     const baseValue = categoryData.units[fromUnit].toBase(numValue);
     // Convert from base unit to target unit

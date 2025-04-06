@@ -41,13 +41,15 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
     
     // Check for time compound units (4h3min, etc.)
     if (category === "time") {
-      // Look for hour/minute/second patterns
+      // Look for hour/minute/second/day/month patterns
       const hasHours = /\d+\s*(?:h|hr|hour|hours)/i.test(input);
       const hasMinutes = /\d+\s*(?:m|min|minute|minutes)/i.test(input);
       const hasSeconds = /\d+\s*(?:s|sec|second|seconds)/i.test(input);
+      const hasDays = /\d+\s*(?:d|day|days)/i.test(input);
+      const hasMonths = /\d+\s*(?:mo|month|months)/i.test(input);
       
       // Consider it a compound unit if it has any time unit
-      if (hasHours || hasMinutes || hasSeconds) {
+      if (hasHours || hasMinutes || hasSeconds || hasDays || hasMonths) {
         return true;
       }
     }
@@ -69,7 +71,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
         else if (category === "gps_coordinates") {
           // For GPS, pass the fromValue as is (it already contains lat,long)
           const result = convertValue(fromValue, fromUnit, toUnit, category);
-          setToValue(result.toString());
+          setToValue(result !== undefined ? result.toString() : "");
         }
         else {
           // For regular inputs, extract just the numeric part
@@ -77,7 +79,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
           if (numericMatch) {
             const numericValue = numericMatch[0];
             const result = convertValue(numericValue, fromUnit, toUnit, category);
-            setToValue(result.toString());
+            setToValue(result !== undefined ? result.toString() : "");
           } else {
             setToValue("");
           }
@@ -114,13 +116,13 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
         if (hasCompoundUnits(val)) {
           // Use the full input string for special handling
           const result = convertValue(val, toUnit, fromUnit, category);
-          setFromValue(result.toString());
+          setFromValue(result !== undefined ? result.toString() : "");
         }
         // Add special handling for GPS coordinates
         else if (category === "gps_coordinates") {
           // For GPS, pass the value as is (it already contains lat,long)
           const result = convertValue(val, toUnit, fromUnit, category);
-          setFromValue(result.toString());
+          setFromValue(result !== undefined ? result.toString() : "");
         }
         else {
           // For regular inputs, extract just the numeric part
@@ -128,7 +130,7 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
           if (numericMatch) {
             const numericValue = numericMatch[0];
             const result = convertValue(numericValue, toUnit, fromUnit, category);
-            setFromValue(result.toString());
+            setFromValue(result !== undefined ? result.toString() : "");
           }
         }
       } catch (error) {

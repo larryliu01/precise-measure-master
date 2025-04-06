@@ -26,7 +26,7 @@ export const timeCategory: ConversionCategory = {
       fromBase: (s: number) => s * 1000000000
     },
     "minutes": {
-      label: "Minutes (min)",
+      label: "Minutes (m)",
       toBase: (min: number) => min * 60,
       fromBase: (s: number) => s / 60
     },
@@ -46,12 +46,12 @@ export const timeCategory: ConversionCategory = {
       fromBase: (s: number) => s / 604800
     },
     "months": {
-      label: "Months (m)",
+      label: "Months (month)",
       toBase: (m: number) => m * 2628000,
       fromBase: (s: number) => s / 2628000
     },
     "years": {
-      label: "Years (y)",
+      label: "Years (year)",
       toBase: (y: number) => y * 31536000,
       fromBase: (s: number) => s / 31536000
     }
