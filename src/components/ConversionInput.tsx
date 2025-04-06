@@ -139,11 +139,11 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   const getPlaceholder = () => {
     if (category === "gps_coordinates") {
       if (unit === "decimal_degrees") {
-        return "Example: 37.7749";
+        return "Example: 37.7749, -122.4194";
       } else if (unit === "degrees_minutes_seconds") {
-        return "Example: 37°46'12\"N";
+        return "Example: 37°46'12\"N, 122°25'48\"W";
       } else if (unit === "degrees_decimal_minutes") {
-        return "Example: 37°46.20'N";
+        return "Example: 37°46.20'N, 122°25.80'W";
       } else if (unit === "utm") {
         return "Example: 10S 123456 4567890";
       } else if (unit === "mgrs") {

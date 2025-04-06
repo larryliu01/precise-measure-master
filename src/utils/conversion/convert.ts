@@ -1,5 +1,6 @@
 import { conversionCategories, currencyCategory } from './index';
 import { parseFeetInches, formatFeetInches } from './length';
+import { CoordinatePair, GPSConversionUnit, ConversionUnit } from './types';
 
 // Parse a compound time expression like "4h30min" or "2h15m"
 const parseTimeExpression = (value: string): number => {
@@ -119,6 +120,28 @@ export const convertValue = (
     return "";
   }
   
+  // Special case for GPS coordinates
+  if (category === "gps_coordinates") {
+    try {
+      // Use the appropriate conversion unit functions
+      const fromUnitObj = categoryData.units[fromUnit] as GPSConversionUnit;
+      const toUnitObj = categoryData.units[toUnit] as GPSConversionUnit;
+      
+      // Convert to base unit (which is a CoordinatePair)
+      const baseValue = fromUnitObj.toBase(value);
+      
+      // Convert from base unit to target unit
+      return toUnitObj.fromBase(baseValue);
+    } catch (error) {
+      console.error("GPS conversion error:", error);
+      return "Invalid GPS format";
+    }
+  }
+  
+  // For all other categories, use the regular conversion methods
+  const fromUnitObj = categoryData.units[fromUnit] as ConversionUnit;
+  const toUnitObj = categoryData.units[toUnit] as ConversionUnit;
+  
   // Special case for feet/inches in length category
   if (category === "length" && typeof value === "string" && 
       (value.includes("ft") || value.includes("'") || 
@@ -129,10 +152,10 @@ export const convertValue = (
     const feetDecimal = parseFeetInches(value);
     
     // Convert from feet to meters (base unit)
-    const meters = categoryData.units.feet.toBase(feetDecimal);
+    const meters = fromUnitObj.toBase(feetDecimal);
     
     // Convert from meters to the target unit
-    const result = categoryData.units[toUnit].fromBase(meters);
+    const result = toUnitObj.fromBase(meters);
     
     if (toUnit === "feet") {
       return formatFeetInches(result);
@@ -152,7 +175,7 @@ export const convertValue = (
       
       // No need to use fromUnit's toBase function - the parseTimeExpression already gives us seconds
       // Just convert from seconds (base unit) to target unit
-      return categoryData.units[toUnit].fromBase(totalSeconds);
+      return toUnitObj.fromBase(totalSeconds);
     } catch (error) {
       console.error("Time parsing error:", error);
       return "Error";
@@ -163,9 +186,9 @@ export const convertValue = (
   try {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
     // Convert to base unit
-    const baseValue = categoryData.units[fromUnit].toBase(numValue);
+    const baseValue = fromUnitObj.toBase(numValue);
     // Convert from base unit to target unit
-    const result = categoryData.units[toUnit].fromBase(baseValue);
+    const result = toUnitObj.fromBase(baseValue);
     return result;
   } catch (error) {
     console.error("Conversion error:", error);
