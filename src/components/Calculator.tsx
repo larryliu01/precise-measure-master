@@ -43,7 +43,20 @@ const Calculator = () => {
   };
 
   const handleUnitChange = (id: string, unit: string) => {
-    setUnitSelections((prev) => ({ ...prev, [id]: unit }));
+    setUnitSelections((prev) => {
+      const updated = { ...prev, [id]: unit };
+      
+      // Synchronize units for Unit Price Comparison
+      if (selectedFormula.name === "Unit Price Comparison") {
+        if (id === "quantity1") {
+          updated.quantity2 = unit;
+        } else if (id === "quantity2") {
+          updated.quantity1 = unit;
+        }
+      }
+      
+      return updated;
+    });
   };
 
   const calculateResult = () => {
@@ -268,6 +281,11 @@ const Calculator = () => {
                       {result.unit.split('\n\n')[1]}
                     </p>
                   </div>
+                ) : selectedFormula.name === "Electricity Cost" || 
+                   selectedFormula.name === "Unit Price Comparison" ? (
+                  <p className="text-xl font-bold text-appcyan">
+                    {result.unit}
+                  </p>
                 ) : (
                   <p className="text-xl font-bold text-appcyan">
                     {result.value} {result.unit}

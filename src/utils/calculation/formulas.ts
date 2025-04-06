@@ -367,12 +367,33 @@ export const commonFormulas: Formula[] = [
       }
     ],
     calculate: (inputs, unitSelections = {}) => {
-      const unitPrice1 = inputs.price1 / inputs.quantity1;
-      const unitPrice2 = inputs.price2 / inputs.quantity2;
-      
       // Get unit labels
       const unit1 = unitSelections.quantity1 || "units";
       const unit2 = unitSelections.quantity2 || "units";
+      
+      // Format unit for display - use per 100g/100ml for small units
+      const formatUnitForDisplay = (unit: string) => {
+        if (unit === "grams") return "100g";
+        if (unit === "ml") return "100ml";
+        return unit;
+      };
+      
+      // Calculate unit prices with adjustments for small units
+      let unitPrice1 = inputs.price1 / inputs.quantity1;
+      let unitPrice2 = inputs.price2 / inputs.quantity2;
+      
+      // Adjust display values for small units (grams, ml)
+      if (unit1 === "grams" || unit1 === "ml") {
+        unitPrice1 = (unitPrice1 * 100); // Price per 100g/100ml
+      }
+      
+      if (unit2 === "grams" || unit2 === "ml") {
+        unitPrice2 = (unitPrice2 * 100); // Price per 100g/100ml
+      }
+      
+      // Format the display unit
+      const displayUnit1 = formatUnitForDisplay(unit1);
+      const displayUnit2 = formatUnitForDisplay(unit2);
       
       // Determine which item is cheaper
       let result: number;
@@ -382,16 +403,16 @@ export const commonFormulas: Formula[] = [
         // Item 1 is cheaper
         const savingsPercent = ((unitPrice2 - unitPrice1) / unitPrice2) * 100;
         result = savingsPercent;
-        unit = `Item 1 ($${unitPrice1.toFixed(2)}/${unit1}) is better than Item 2 ($${unitPrice2.toFixed(2)}/${unit2}) (${savingsPercent.toFixed(1)}% cheaper)`;
+        unit = `Item 1 ($${unitPrice1.toFixed(2)}/${displayUnit1}) is ${savingsPercent.toFixed(1)}% cheaper than Item 2 ($${unitPrice2.toFixed(2)}/${displayUnit2})`;
       } else if (unitPrice2 < unitPrice1) {
         // Item 2 is cheaper
         const savingsPercent = ((unitPrice1 - unitPrice2) / unitPrice1) * 100;
         result = savingsPercent;
-        unit = `Item 2 ($${unitPrice2.toFixed(2)}/${unit2}) is better than Item 1 ($${unitPrice1.toFixed(2)}/${unit1}) (${savingsPercent.toFixed(1)}% cheaper)`;
+        unit = `Item 2 ($${unitPrice2.toFixed(2)}/${displayUnit2}) is ${savingsPercent.toFixed(1)}% cheaper than Item 1 ($${unitPrice1.toFixed(2)}/${displayUnit1})`;
       } else {
         // Both have the same price
         result = 0;
-        unit = `Same price: $${unitPrice1.toFixed(2)}/${unit1} for both items`;
+        unit = `Same price: $${unitPrice1.toFixed(2)}/${displayUnit1} for both items`;
       }
       
       return { result: parseFloat(result.toFixed(1)), unit };
@@ -457,7 +478,7 @@ export const commonFormulas: Formula[] = [
       // Format result to include both daily and monthly costs
       const unit = `$${dailyCost.toFixed(2)}/day, $${monthlyCost.toFixed(2)}/month`;
       
-      return { result: parseFloat(monthlyCost.toFixed(2)), unit };
+      return { result: 0, unit };
     }
   }
 ];
