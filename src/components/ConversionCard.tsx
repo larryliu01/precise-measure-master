@@ -45,9 +45,35 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
       const hasHours = /\d+\s*(?:h|hr|hour|hours)/i.test(input);
       const hasMinutes = /\d+\s*(?:m|min|minute|minutes)/i.test(input);
       const hasSeconds = /\d+\s*(?:s|sec|second|seconds)/i.test(input);
+      const hasDays = /\d+\s*(?:d|day|days)/i.test(input);
+      const hasWeeks = /\d+\s*(?:w|wk|week|weeks)/i.test(input);
+      const hasMonths = /\d+\s*(?:mo|month|months)/i.test(input);
+      const hasYears = /\d+\s*(?:y|yr|year|years)/i.test(input);
       
       // Consider it a compound unit if it has any time unit
-      if (hasHours || hasMinutes || hasSeconds) {
+      if (hasHours || hasMinutes || hasSeconds || hasDays || hasWeeks || hasMonths || hasYears) {
+        return true;
+      }
+    }
+    
+    // Check for GPS coordinate formats
+    if (category === "gps_coordinates") {
+      // Check for DMS format (degrees, minutes, seconds)
+      if (input.includes('°') || input.includes("'") || input.includes('"') || 
+          /\d+\s*(?:deg|degrees)/.test(input) || 
+          /\d+\s*(?:min|minutes)/.test(input) || 
+          /\d+\s*(?:sec|seconds)/.test(input) || 
+          /[NSEW]$/i.test(input)) {
+        return true;
+      }
+      
+      // Check for UTM format
+      if (/\d+[A-Z]\s+\d+\s+\d+/.test(input)) {
+        return true;
+      }
+      
+      // Check for MGRS format
+      if (/\d+[A-Z]{3}\s+\d+\s+\d+/.test(input)) {
         return true;
       }
     }

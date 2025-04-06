@@ -34,7 +34,7 @@ const UnitConverter: React.FC = () => {
         <TabsList className="grid grid-cols-3 mb-6">
           <TabsTrigger value="units">Unit Conversion</TabsTrigger>
           <TabsTrigger value="currency">Currency</TabsTrigger>
-          <TabsTrigger value="calculator">Daily Math</TabsTrigger>
+          <TabsTrigger value="calculator">Useful Calculation</TabsTrigger>
         </TabsList>
         
         <TabsContent value="units">
@@ -71,6 +71,8 @@ const UnitConverter: React.FC = () => {
             <div className="unit-card">
               <ul className="list-disc list-inside text-appwhite/80 space-y-2">
                 <li>For length conversions, you can enter values like "5ft 3in" or "5'3"</li>
+                <li>For time conversions, you can enter values like "2h 30min 15s" or "1d 6h"</li>
+                <li>Time units support: s (seconds), min (minutes), h (hours), d (days), wk (weeks), mo (months), yr (years)</li>
                 <li>Use the swap button to reverse the conversion direction</li>
                 <li>All conversions happen in real-time as you type</li>
                 <li>Your recently used measurement types appear below the converter</li>

@@ -135,6 +135,26 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
     onValueChange(input);
   };
 
+  // Get appropriate placeholder based on category and unit
+  const getPlaceholder = () => {
+    if (category === "gps_coordinates") {
+      if (unit === "decimal_degrees") {
+        return "Example: 37.7749";
+      } else if (unit === "degrees_minutes_seconds") {
+        return "Example: 37°46'12\"N";
+      } else if (unit === "degrees_decimal_minutes") {
+        return "Example: 37°46.20'N";
+      } else if (unit === "utm") {
+        return "Example: 10S 123456 4567890";
+      } else if (unit === "mgrs") {
+        return "Example: 4QFJ 12345 67890";
+      } else if (unit === "geohash") {
+        return "Example: 9q8yvf";
+      }
+    }
+    return placeholder;
+  };
+
   return (
     <div className="mb-4 w-full">
       <div className="w-full">
@@ -147,7 +167,7 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
               type="text"
               value={inputText}
               onChange={(e) => handleInputChange(e.target.value)}
-              placeholder={placeholder}
+              placeholder={getPlaceholder()}
               readOnly={readOnly}
               className="input-field"
             />

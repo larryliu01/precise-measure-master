@@ -11,6 +11,34 @@ const parseTimeExpression = (value: string): number => {
     return parseFloat(normalized);
   }
   
+  // Look for years pattern
+  const yearsMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:y|yr|year|years)/g));
+  let years = 0;
+  for (const match of yearsMatches) {
+    years += parseFloat(match[1]);
+  }
+  
+  // Look for months pattern
+  const monthsMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:mo|month|months)/g));
+  let months = 0;
+  for (const match of monthsMatches) {
+    months += parseFloat(match[1]);
+  }
+  
+  // Look for weeks pattern
+  const weeksMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:w|wk|week|weeks)/g));
+  let weeks = 0;
+  for (const match of weeksMatches) {
+    weeks += parseFloat(match[1]);
+  }
+  
+  // Look for days pattern
+  const daysMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:d|day|days)/g));
+  let days = 0;
+  for (const match of daysMatches) {
+    days += parseFloat(match[1]);
+  }
+  
   // Look for hours pattern (e.g., 4h, 4hr, 4hrs)
   // Use global flag to find all matches
   const hoursMatches = Array.from(normalized.matchAll(/(\d+(?:\.\d+)?)(?:h|hr|hour|hours)/g));
@@ -45,7 +73,7 @@ const parseTimeExpression = (value: string): number => {
   }
   
   // If we couldn't parse anything, try to interpret as the current unit
-  if (hours === 0 && minutes === 0 && seconds === 0) {
+  if (years === 0 && months === 0 && weeks === 0 && days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
     const numericMatch = normalized.match(/^(\d+(?:\.\d+)?)$/);
     if (numericMatch) {
       return parseFloat(numericMatch[1]);
@@ -53,7 +81,15 @@ const parseTimeExpression = (value: string): number => {
   }
   
   // Convert all to seconds as the common unit
-  return hours * 3600 + minutes * 60 + seconds;
+  return (
+    years * 31536000 +
+    months * 2628000 +
+    weeks * 604800 +
+    days * 86400 +
+    hours * 3600 +
+    minutes * 60 +
+    seconds
+  );
 };
 
 // Helper function to convert values
