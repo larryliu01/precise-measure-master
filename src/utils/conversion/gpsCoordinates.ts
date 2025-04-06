@@ -3,6 +3,8 @@ import { ConversionCategory } from './types';
 // Helper function to parse DMS string to decimal degrees
 // Handles formats like "40°26'46\"N" or "40° 26' 46\" N"
 const parseDMS = (dmsStr: string): number => {
+  if (!dmsStr || dmsStr.trim() === '') return 0;
+  
   // Remove all spaces
   const normalized = dmsStr.trim();
   
@@ -37,6 +39,8 @@ const parseDMS = (dmsStr: string): number => {
 // Helper function to parse DDM string to decimal degrees
 // Handles formats like "40° 26.77' N" or "40°26.77'N" 
 const parseDDM = (ddmStr: string): number => {
+  if (!ddmStr || ddmStr.trim() === '') return 0;
+  
   // Remove all spaces
   const normalized = ddmStr.trim();
   
@@ -68,6 +72,8 @@ const parseDDM = (ddmStr: string): number => {
 
 // Helper function to format decimal degrees to DMS string
 const formatToDMS = (dd: number, isLongitude: boolean = false): string => {
+  if (isNaN(dd)) return isLongitude ? "0° 0' 0\" E" : "0° 0' 0\" N";
+  
   const dir = dd >= 0 ? (isLongitude ? 'E' : 'N') : (isLongitude ? 'W' : 'S');
   const absDd = Math.abs(dd);
   const degrees = Math.floor(absDd);
@@ -79,6 +85,8 @@ const formatToDMS = (dd: number, isLongitude: boolean = false): string => {
 
 // Helper function to format decimal degrees to DDM string
 const formatToDDM = (dd: number, isLongitude: boolean = false): string => {
+  if (isNaN(dd)) return isLongitude ? "0° 0' E" : "0° 0' N";
+  
   const dir = dd >= 0 ? (isLongitude ? 'E' : 'N') : (isLongitude ? 'W' : 'S');
   const absDd = Math.abs(dd);
   const degrees = Math.floor(absDd);
@@ -105,11 +113,13 @@ export const gpsCoordinatesCategory: ConversionCategory = {
           const parts = dd.split(',');
           if (parts.length === 2) {
             // We just return the first part (latitude) for simplicity
-            return parseFloat(parts[0].trim());
+            const lat = parseFloat(parts[0].trim());
+            return isNaN(lat) ? 0 : lat;
           }
         }
         
-        return parseFloat(String(dd));
+        const parsed = parseFloat(String(dd));
+        return isNaN(parsed) ? 0 : parsed;
       },
       fromBase: (dd: number) => dd
     },
@@ -130,7 +140,8 @@ export const gpsCoordinatesCategory: ConversionCategory = {
           return parseDMS(dms);
         }
         
-        return parseFloat(String(dms));
+        const parsed = parseFloat(String(dms));
+        return isNaN(parsed) ? 0 : parsed;
       },
       fromBase: (dd: number, inputString?: string) => {
         // Check if inputString contains lat,long information
@@ -139,7 +150,22 @@ export const gpsCoordinatesCategory: ConversionCategory = {
           if (parts.length === 2) {
             // Format both lat and long to DMS
             const lat = formatToDMS(dd, false);
-            const long = formatToDMS(parseFloat(parts[1].trim()), true);
+            
+            // Try to parse the longitude value
+            let longValue = parseFloat(parts[1].trim());
+            
+            // If parsing fails, try to parse it as a coordinate format
+            if (isNaN(longValue) && parts[1].includes('°')) {
+              if (parts[1].includes("'") && (parts[1].includes('"') || parts[1].includes('″'))) {
+                // It's in DMS format
+                longValue = parseDMS(parts[1].trim());
+              } else {
+                // It's in DDM format
+                longValue = parseDDM(parts[1].trim());
+              }
+            }
+            
+            const long = formatToDMS(longValue, true);
             return `${lat}, ${long}`;
           }
         }
@@ -165,7 +191,8 @@ export const gpsCoordinatesCategory: ConversionCategory = {
           return parseDDM(ddm);
         }
         
-        return parseFloat(String(ddm));
+        const parsed = parseFloat(String(ddm));
+        return isNaN(parsed) ? 0 : parsed;
       },
       fromBase: (dd: number, inputString?: string) => {
         // Check if inputString contains lat,long information
@@ -174,7 +201,22 @@ export const gpsCoordinatesCategory: ConversionCategory = {
           if (parts.length === 2) {
             // Format both lat and long to DDM
             const lat = formatToDDM(dd, false);
-            const long = formatToDDM(parseFloat(parts[1].trim()), true);
+            
+            // Try to parse the longitude value
+            let longValue = parseFloat(parts[1].trim());
+            
+            // If parsing fails, try to parse it as a coordinate format
+            if (isNaN(longValue) && parts[1].includes('°')) {
+              if (parts[1].includes("'") && (parts[1].includes('"') || parts[1].includes('″'))) {
+                // It's in DMS format
+                longValue = parseDMS(parts[1].trim());
+              } else {
+                // It's in DDM format
+                longValue = parseDDM(parts[1].trim());
+              }
+            }
+            
+            const long = formatToDDM(longValue, true);
             return `${lat}, ${long}`;
           }
         }
@@ -183,22 +225,16 @@ export const gpsCoordinatesCategory: ConversionCategory = {
         return formatToDDM(dd);
       }
     },
-    "bng": {
-      label: "British National Grid (BNG/XY)",
-      // This is a simplified conversion for BNG
-      toBase: (bng: number | string) => {
-        if (typeof bng === 'number') return bng;
-        return parseFloat(String(bng));
-      },
-      fromBase: (dd: number) => dd
-    },
     "utm": {
       label: "Universal Transverse Mercator (UTM)",
       // UTM conversion is quite complex and typically requires zone information
       // This is a placeholder - in a real app, use a proper UTM conversion library
       toBase: (utm: number | string) => {
         if (typeof utm === 'number') return utm;
-        return parseFloat(String(utm));
+        
+        // Only return a numerical value here
+        const parsed = parseFloat(String(utm));
+        return isNaN(parsed) ? 0 : parsed;
       },
       fromBase: (dd: number) => dd
     },
@@ -207,14 +243,23 @@ export const gpsCoordinatesCategory: ConversionCategory = {
       // MGRS conversion is complex - this is a placeholder
       toBase: (mgrs: number | string) => {
         if (typeof mgrs === 'number') return mgrs;
-        return parseFloat(String(mgrs));
+        
+        // Only return a numerical value here
+        const parsed = parseFloat(String(mgrs));
+        return isNaN(parsed) ? 0 : parsed;
       },
       fromBase: (dd: number) => dd
     },
     "geohash": {
       label: "Geohash",
       // Geohash conversion is complex - this is a placeholder
-      toBase: (geohash: number) => geohash,
+      toBase: (geohash: number | string) => {
+        if (typeof geohash === 'number') return geohash;
+        
+        // Only return a numerical value here
+        const parsed = parseFloat(String(geohash));
+        return isNaN(parsed) ? 0 : parsed;
+      },
       fromBase: (dd: number) => dd
     }
   }

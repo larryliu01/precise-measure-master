@@ -77,6 +77,9 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   
   // Parse DMS string and set component values
   const parseAndSetDMS = (dmsStr: string, isLatitude: boolean) => {
+    // If string is empty, return without changes
+    if (!dmsStr || dmsStr.trim() === '') return;
+    
     // Remove all spaces
     const normalized = dmsStr.trim();
     
@@ -117,6 +120,9 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   
   // Parse DDM string and set component values
   const parseAndSetDDM = (ddmStr: string, isLatitude: boolean) => {
+    // If string is empty, return without changes
+    if (!ddmStr || ddmStr.trim() === '') return;
+    
     // Remove all spaces
     const normalized = ddmStr.trim();
     
@@ -277,42 +283,83 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
 
   // Format DMS components to a string
   const formatDMSComponents = (degrees: string, minutes: string, seconds: string, direction: string) => {
-    let dmsString = "";
-    if (degrees) dmsString += `${degrees}°`;
-    if (minutes) dmsString += ` ${minutes}'`;
-    if (seconds) dmsString += ` ${seconds}"`;
-    if (direction) dmsString += ` ${direction}`;
-    return dmsString.trim();
+    try {
+      // Ensure we have valid numbers
+      const deg = degrees ? Math.abs(parseFloat(degrees)) : 0;
+      const min = minutes ? parseFloat(minutes) : 0;
+      const sec = seconds ? parseFloat(seconds) : 0;
+      
+      if (isNaN(deg) && isNaN(min) && isNaN(sec)) return "";
+      
+      let dmsString = "";
+      if (!isNaN(deg)) dmsString += `${deg}°`;
+      if (!isNaN(min)) dmsString += ` ${min}'`;
+      if (!isNaN(sec)) dmsString += ` ${sec}"`;
+      if (direction) dmsString += ` ${direction}`;
+      
+      return dmsString.trim();
+    } catch (e) {
+      console.error("Error formatting DMS components", e);
+      return "";
+    }
   };
   
   // Format DDM components to a string
   const formatDDMComponents = (degrees: string, minutes: string, direction: string) => {
-    let ddmString = "";
-    if (degrees) ddmString += `${degrees}°`;
-    if (minutes) ddmString += ` ${minutes}'`;
-    if (direction) ddmString += ` ${direction}`;
-    return ddmString.trim();
+    try {
+      // Ensure we have valid numbers
+      const deg = degrees ? Math.abs(parseFloat(degrees)) : 0;
+      const min = minutes ? parseFloat(minutes) : 0;
+      
+      if (isNaN(deg) && isNaN(min)) return "";
+      
+      let ddmString = "";
+      if (!isNaN(deg)) ddmString += `${deg}°`;
+      if (!isNaN(min)) ddmString += ` ${min}'`;
+      if (direction) ddmString += ` ${direction}`;
+      
+      return ddmString.trim();
+    } catch (e) {
+      console.error("Error formatting DDM components", e);
+      return "";
+    }
   };
   
   // Handle DMS input changes
   const handleDMSChange = (isLatitude: boolean) => {
-    if (isLatitude) {
-      const dmsString = formatDMSComponents(latDegrees, latMinutes, latSeconds, latDirection);
-      handleGpsCoordinateChange(dmsString, longValue);
-    } else {
-      const dmsString = formatDMSComponents(longDegrees, longMinutes, longSeconds, longDirection);
-      handleGpsCoordinateChange(latValue, dmsString);
+    try {
+      if (isLatitude) {
+        const dmsString = formatDMSComponents(latDegrees, latMinutes, latSeconds, latDirection);
+        if (dmsString) {
+          handleGpsCoordinateChange(dmsString, longValue);
+        }
+      } else {
+        const dmsString = formatDMSComponents(longDegrees, longMinutes, longSeconds, longDirection);
+        if (dmsString) {
+          handleGpsCoordinateChange(latValue, dmsString);
+        }
+      }
+    } catch (e) {
+      console.error("Error in DMS change handler", e);
     }
   };
   
   // Handle DDM input changes
   const handleDDMChange = (isLatitude: boolean) => {
-    if (isLatitude) {
-      const ddmString = formatDDMComponents(latDegrees, latMinutes, latDirection);
-      handleGpsCoordinateChange(ddmString, longValue);
-    } else {
-      const ddmString = formatDDMComponents(longDegrees, longMinutes, longDirection);
-      handleGpsCoordinateChange(latValue, ddmString);
+    try {
+      if (isLatitude) {
+        const ddmString = formatDDMComponents(latDegrees, latMinutes, latDirection);
+        if (ddmString) {
+          handleGpsCoordinateChange(ddmString, longValue);
+        }
+      } else {
+        const ddmString = formatDDMComponents(longDegrees, longMinutes, longDirection);
+        if (ddmString) {
+          handleGpsCoordinateChange(latValue, ddmString);
+        }
+      }
+    } catch (e) {
+      console.error("Error in DDM change handler", e);
     }
   };
 
