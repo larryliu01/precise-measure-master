@@ -1,7 +1,8 @@
+
 export interface ConversionUnit {
   label: string;
-  toBase: (value: number | string) => number;
-  fromBase: (value: number, inputString?: string) => number | string;
+  toBase: (value: number) => number;
+  fromBase: (value: number) => number;
 }
 
 export interface ConversionCategory {

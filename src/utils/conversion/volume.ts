@@ -22,7 +22,7 @@ export const volumeCategory: ConversionCategory = {
     },
     "cubic_decimeters": {
       label: "Cubic Decimeters (dm³)",
-      toBase: (dm3: number) => dm3, // 1 dm³ = 1 liter
+      toBase: (dm3: number) => dm3,  // 1 dm³ = 1 L
       fromBase: (l: number) => l
     },
     "cubic_centimeters": {
@@ -50,35 +50,40 @@ export const volumeCategory: ConversionCategory = {
       toBase: (galUK: number) => galUK * 4.54609,
       fromBase: (l: number) => l / 4.54609
     },
-    "quarts_us": {
-      label: "US Quarts (qt)",
-      toBase: (qt: number) => qt * 0.946353,
-      fromBase: (l: number) => l / 0.946353
-    },
-    "pints_us": {
-      label: "US Pints (pt)",
-      toBase: (pt: number) => pt * 0.473176,
-      fromBase: (l: number) => l / 0.473176
-    },
     "fluid_ounces_us": {
       label: "US Fluid Ounces (fl oz)",
       toBase: (flOz: number) => flOz * 0.0295735,
       fromBase: (l: number) => l / 0.0295735
     },
-    "tablespoons_us": {
-      label: "Tablespoons (tbsp)",
-      toBase: (tbsp: number) => tbsp * 0.0147868,
-      fromBase: (l: number) => l / 0.0147868
-    },
-    "teaspoons_us": {
-      label: "Teaspoons (tsp)",
-      toBase: (tsp: number) => tsp * 0.00492892,
-      fromBase: (l: number) => l / 0.00492892
-    },
     "cups": {
       label: "Cups",
       toBase: (cup: number) => cup * 0.24,
       fromBase: (l: number) => l / 0.24
+    },
+    "teaspoon_us": {
+      label: "US Teaspoon (tsp)",
+      toBase: (tsp: number) => tsp * 0.00492892,
+      fromBase: (l: number) => l / 0.00492892
+    },
+    "teaspoon_metric": {
+      label: "Metric Teaspoon (5mL)",
+      toBase: (tsp: number) => tsp * 0.005,
+      fromBase: (l: number) => l / 0.005
+    },
+    "tablespoon_us": {
+      label: "US Tablespoon (tbsp)",
+      toBase: (tbsp: number) => tbsp * 0.0147868,
+      fromBase: (l: number) => l / 0.0147868
+    },
+    "tablespoon_metric": {
+      label: "Metric Tablespoon (15mL)",
+      toBase: (tbsp: number) => tbsp * 0.015,
+      fromBase: (l: number) => l / 0.015
+    },
+    "pint_us": {
+      label: "US Pint (pt)",
+      toBase: (pt: number) => pt * 0.473176,
+      fromBase: (l: number) => l / 0.473176
     }
   }
 };
