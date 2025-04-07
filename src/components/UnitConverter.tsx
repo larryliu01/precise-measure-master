@@ -6,6 +6,7 @@ import CurrencyConverter from './CurrencyConverter';
 import Calculator from './Calculator';
 import { conversionCategories } from '../utils/conversion';
 import Footer from './Footer';
+import { Sparkles } from 'lucide-react';
 
 const UnitConverter: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('length');
@@ -25,19 +26,41 @@ const UnitConverter: React.FC = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
-      <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Precision Unit Converter</h1>
-        <p className="text-appwhite/60">Convert between different units quickly and easily</p>
+      <header className="text-center mb-10 relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-24 bg-gradient-radial from-appcyan/10 to-transparent opacity-70 blur-xl -z-10"></div>
+        
+        <div className="inline-flex items-center justify-center mb-2">
+          <Sparkles className="h-7 w-7 mr-2 text-appcyan animate-pulse-glow" />
+          <h1 className="text-3xl font-bold text-gradient bg-gradient-to-r from-appcyan-light via-appcyan to-accent bg-clip-text text-transparent">
+            Precision Unit Converter
+          </h1>
+        </div>
+        
+        <p className="text-appwhite/60 max-w-lg mx-auto">
+          Convert between different units with accuracy and ease
+        </p>
       </header>
 
-      <Tabs defaultValue="units" className="w-full mb-6">
-        <TabsList className="grid grid-cols-3 mb-6 bg-appblue-dark/40 backdrop-blur-sm">
-          <TabsTrigger value="units">Unit Conversion</TabsTrigger>
-          <TabsTrigger value="currency">Currency</TabsTrigger>
-          <TabsTrigger value="calculator">Useful Calculation</TabsTrigger>
+      <Tabs defaultValue="units" className="w-full mb-8">
+        <TabsList className="grid grid-cols-3 mb-8 bg-appblue-dark/40 border border-appwhite/10 p-1 rounded-lg">
+          <TabsTrigger 
+            value="units" 
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/80 data-[state=active]:to-accent/80 data-[state=active]:text-appblue rounded-md data-[state=active]:shadow-md">
+            Unit Conversion
+          </TabsTrigger>
+          <TabsTrigger 
+            value="currency"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/80 data-[state=active]:to-accent/80 data-[state=active]:text-appblue rounded-md data-[state=active]:shadow-md">
+            Currency
+          </TabsTrigger>
+          <TabsTrigger 
+            value="calculator"
+            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/80 data-[state=active]:to-accent/80 data-[state=active]:text-appblue rounded-md data-[state=active]:shadow-md">
+            Calculation
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="units">
+        <TabsContent value="units" className="space-y-6">
           <div className="mb-6">
             <CategorySelector
               selectedCategory={selectedCategory}
@@ -81,7 +104,7 @@ const UnitConverter: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="currency">
+        <TabsContent value="currency" className="space-y-6">
           <div className="mb-8">
             <CurrencyConverter />
           </div>
@@ -99,7 +122,7 @@ const UnitConverter: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="calculator">
+        <TabsContent value="calculator" className="space-y-6">
           <Calculator />
         </TabsContent>
       </Tabs>

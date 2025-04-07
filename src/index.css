@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 240 33% 15%;
-    --foreground: 210 40% 98%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 240 33% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 224 71% 7%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 240 33% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 196 83% 57%;
-    --primary-foreground: 240 33% 15%;
+    --primary: 200 89% 70%;
+    --primary-foreground: 210 40% 5%;
 
-    --secondary: 240 25% 21%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 200 50% 30%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 25% 21%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 200 50% 15%;
+    --muted-foreground: 217 33% 80%;
 
-    --accent: 196 83% 57%;
-    --accent-foreground: 240 33% 15%;
+    --accent: 170 67% 50%;
+    --accent-foreground: 210 40% 5%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 240 25% 21%;
-    --input: 240 25% 21%;
-    --ring: 196 83% 57%;
+    --border: 216 34% 27%;
+    --input: 216 34% 17%;
+    --ring: 224 71% 4%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
   }
 
   /* Override any browser default outlines at the root level */
@@ -62,7 +62,20 @@
   }
 
   body {
-    @apply bg-appblue text-foreground min-h-screen;
+    @apply bg-gradient-to-b from-appblue to-appblue-darkest text-appwhite min-h-screen font-sans antialiased;
+    letter-spacing: 0.02em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-wide;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl font-bold tracking-wider leading-tight;
+  }
+  
+  h2 {
+    @apply text-xl md:text-2xl mb-4 font-semibold;
   }
   
   /* Only add glow effect to specific focused elements */
@@ -92,9 +105,13 @@
 }
 
 .input-field {
-  @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/30 p-3 text-white w-full 
-  outline-none focus:border-appcyan
-  shadow-inner shadow-appcyan/20;
+  @apply px-4 py-2 rounded-md bg-appblue-dark/30 text-appwhite focus:ring-2 focus:ring-appcyan/50 
+    border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 placeholder:text-appwhite/50 
+    transition-all duration-200;
+}
+
+.input-field:focus {
+  @apply border-appcyan/60;
 }
 
 /* Override any browser default focus outlines more aggressively */
@@ -133,33 +150,99 @@ input:focus-visible,
 }
 
 .unit-card {
-  @apply bg-appblue-light rounded-xl p-5 transition-all hover:shadow-lg hover:shadow-appcyan/10 border border-border/30;
+  @apply bg-appblue-light/10 backdrop-blur-sm border border-appwhite/10 shadow-lg shadow-black/20 
+    p-5 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/30;
+  position: relative;
+}
+
+.unit-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(142, 227, 253, 0), rgba(142, 227, 253, 0.3), rgba(142, 227, 253, 0));
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .conversion-card {
-  @apply bg-appblue-light rounded-xl p-6 border border-border/30 mb-4;
+  @apply bg-appblue-light/10 backdrop-blur-sm border border-appwhite/10 shadow-lg shadow-black/20 
+    p-5 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-black/30;
 }
 
 .category-button {
-  @apply flex items-center px-3 py-2 bg-appblue-dark/30 text-appwhite rounded-md border-2 border-appcyan/30 hover:bg-appcyan/10 transition-colors;
+  @apply flex items-center px-3 py-2 bg-appblue-dark/40 text-appwhite rounded-md 
+    border-2 border-appcyan/20 hover:bg-appcyan/10 transition-all duration-200 
+    hover:border-appcyan/40 shadow-sm hover:shadow-md hover:shadow-appcyan/10;
 }
 
 .category-button.active {
-  @apply bg-appcyan text-appblue font-medium;
+  @apply bg-gradient-to-r from-appcyan/90 to-accent/90 text-appblue font-medium 
+    border-transparent shadow-md shadow-appcyan/30;
 }
 
 /* Custom buttons */
 .main-button,
 .primary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appcyan text-appblue hover:bg-appcyan/90 transition-colors;
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium 
+    bg-gradient-to-r from-appcyan to-accent text-appblue hover:from-appcyan/90 hover:to-accent/90 
+    transition-all duration-300 shadow-md shadow-appcyan/20 hover:shadow-lg hover:shadow-appcyan/30 
+    active:scale-[0.98];
 }
 
 .secondary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors;
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium 
+    bg-appblue-dark/40 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/60 
+    transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-appcyan/10 
+    hover:border-appcyan/50 active:scale-[0.98];
 }
 
 /* Collapsible section animations */
 .max-h-0 {
   max-height: 0;
   overflow: hidden;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+
+/* Animation for refresh button */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 1.5s linear infinite;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .unit-card {
+    @apply p-4;
+  }
+  
+  .conversion-card {
+    @apply p-4;
+  }
+  
+  /* Improved touch targets for mobile */
+  .category-button, 
+  .primary-button, 
+  .secondary-button {
+    @apply py-2.5 px-4;
+  }
+}
+
+/* Glassmorphism effect for cards */
+.glass-card {
+  @apply bg-appblue-light/10 backdrop-blur-sm border border-appwhite/10 
+    shadow-lg shadow-black/20 rounded-xl overflow-hidden p-4;
 }
