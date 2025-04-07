@@ -156,31 +156,25 @@ const ConversionInput: React.FC<ConversionInputProps> = ({
   };
 
   return (
-    <div className="mb-4 w-full">
-      <div className="w-full">
-        <label className="block text-sm font-medium text-appwhite/80 mb-1">
-          {label}
-        </label>
-        <div className="flex items-center gap-2">
-          <div className="flex-grow">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => handleInputChange(e.target.value)}
-              placeholder={getPlaceholder()}
-              readOnly={readOnly}
-              className="input-field"
-            />
-          </div>
-        </div>
+    <div>
+      <label className="block text-sm font-medium text-appwhite/80 mb-2">{label}</label>
+      <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+          className={`input-field flex-1 min-w-0 ${readOnly ? 'bg-appblue-light/50' : ''}`}
+          placeholder={placeholder}
+          readOnly={readOnly}
+          style={{ fontSize: '16px' }}
+        />
+        
+        <UnitSelector
+          category={category}
+          value={unit}
+          onChange={onUnitChange}
+        />
       </div>
-      <UnitSelector
-        category={category}
-        value={unit}
-        onChange={onUnitChange}
-        label="Unit"
-        id={`${label.toLowerCase()}-unit-selector`}
-      />
     </div>
   );
 };

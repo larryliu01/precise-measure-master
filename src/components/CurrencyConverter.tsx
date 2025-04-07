@@ -11,21 +11,58 @@ const currencies = [
   { code: 'EUR', name: 'Euro', symbol: '€' },
   { code: 'GBP', name: 'British Pound', symbol: '£' },
   { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
   { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
   { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
   { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
   { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
   { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
   { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  { code: 'MXN', name: 'Mexican Peso', symbol: 'Mex$' },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
 ];
 
+// Keys for localStorage
+const STORAGE_KEYS = {
+  FROM_CURRENCY: 'currency_fromCurrency',
+  TO_CURRENCY: 'currency_toCurrency',
+  AMOUNT: 'currency_amount'
+};
+
 const CurrencyConverter: React.FC = () => {
-  const [amount, setAmount] = useState<string>('1');
-  const [fromCurrency, setFromCurrency] = useState<string>('USD');
-  const [toCurrency, setToCurrency] = useState<string>('EUR');
+  const [amount, setAmount] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.AMOUNT);
+    return saved || '1';
+  });
+  
+  const [fromCurrency, setFromCurrency] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.FROM_CURRENCY);
+    return saved || 'USD';
+  });
+  
+  const [toCurrency, setToCurrency] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.TO_CURRENCY);
+    return saved || 'EUR';
+  });
+  
   const [convertedAmount, setConvertedAmount] = useState<string>('');
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  
+  // Save selections to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.FROM_CURRENCY, fromCurrency);
+  }, [fromCurrency]);
+  
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.TO_CURRENCY, toCurrency);
+  }, [toCurrency]);
+  
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.AMOUNT, amount);
+  }, [amount]);
   
   // Fetch real-time exchange rates
   const { rates, loading: apiLoading, error } = useExchangeRates(fromCurrency);
@@ -86,6 +123,17 @@ const CurrencyConverter: React.FC = () => {
     }
   };
 
+  // Get currency display for trigger
+  const getCurrencyDisplay = (code: string) => {
+    const currency = currencies.find(c => c.code === code);
+    return currency ? (
+      <div className="flex items-center">
+        <span className="mr-1">{currency.symbol}</span>
+        <span>{currency.code}</span>
+      </div>
+    ) : "Currency";
+  };
+
   return (
     <div className="conversion-card">
       <div className="flex justify-between items-center mb-6">
@@ -112,7 +160,7 @@ const CurrencyConverter: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-6 mb-6">
         {/* From Currency */}
-        <div className="glass-card">
+        <div className="glass-card p-4">
           <label htmlFor="fromAmount" className="block text-sm font-medium text-appwhite/80 mb-2">
             From
           </label>
@@ -128,7 +176,9 @@ const CurrencyConverter: React.FC = () => {
             />
             <Select value={fromCurrency} onValueChange={setFromCurrency}>
               <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
-                <SelectValue placeholder="Currency" />
+                <SelectValue placeholder="Currency">
+                  {getCurrencyDisplay(fromCurrency)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-appblue-light/90 backdrop-blur-md text-appwhite border-appwhite/20 max-h-60">
                 {currencies.map((currency) => (
@@ -159,7 +209,7 @@ const CurrencyConverter: React.FC = () => {
         </div>
 
         {/* To Currency */}
-        <div className="glass-card">
+        <div className="glass-card p-4">
           <label htmlFor="toAmount" className="block text-sm font-medium text-appwhite/80 mb-2">
             To
           </label>
@@ -177,7 +227,9 @@ const CurrencyConverter: React.FC = () => {
             )}
             <Select value={toCurrency} onValueChange={setToCurrency}>
               <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
-                <SelectValue placeholder="Currency" />
+                <SelectValue placeholder="Currency">
+                  {getCurrencyDisplay(toCurrency)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-appblue-light/90 backdrop-blur-md text-appwhite border-appwhite/20 max-h-60">
                 {currencies.map((currency) => (

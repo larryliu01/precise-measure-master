@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { commonFormulas } from "../utils/calculation/formulas";
+import { commonFormulas, Formula } from "../utils/calculation/formulas";
 import { 
   Select,
   SelectContent,
@@ -7,13 +7,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { 
+  Calculator as CalculatorIcon, 
+  DollarSign, 
+  Clock, 
+  Car, 
+  ArrowUpDown, 
+  Zap, 
+  Percent, 
+  Weight, 
+  FlaskConical, 
+  Heart, 
+  Lightbulb, 
+  Home, 
+  BarChart4
+} from "lucide-react";
+
+// Map formula names to icons
+const formulaIcons: Record<string, React.ReactNode> = {
+  "Compound Interest Calculator": <DollarSign className="h-4 w-4 mr-2" />,
+  "Distance, Speed & Time Calculator": <Car className="h-4 w-4 mr-2" />,
+  "Ohm's Law Calculator": <Zap className="h-4 w-4 mr-2" />,
+  "Unit Price Comparison": <BarChart4 className="h-4 w-4 mr-2" />,
+  "Fuel Cost for a Trip": <Car className="h-4 w-4 mr-2" />,
+  "Body Mass Index (BMI)": <Weight className="h-4 w-4 mr-2" />,
+  "Price Adjustment Calculator": <Percent className="h-4 w-4 mr-2" />,
+  "Electricity Cost": <Lightbulb className="h-4 w-4 mr-2" />,
+  "Mortgage Payment": <Home className="h-4 w-4 mr-2" />,
+  "Temperature Converter": <FlaskConical className="h-4 w-4 mr-2" />,
+};
+
+// Keys for localStorage
+const STORAGE_KEYS = {
+  SELECTED_FORMULA: 'calculator_selectedFormula',
+  UNIT_SELECTIONS: 'calculator_unitSelections',
+  ADJUSTMENT_MODE: 'calculator_adjustmentMode'
+};
 
 const Calculator = () => {
-  const [selectedFormula, setSelectedFormula] = useState(commonFormulas[0]);
+  const [selectedFormula, setSelectedFormula] = useState<Formula>(() => {
+    try {
+      const savedName = localStorage.getItem(STORAGE_KEYS.SELECTED_FORMULA);
+      if (savedName) {
+        const formula = commonFormulas.find(f => f.name === savedName);
+        if (formula) return formula;
+      }
+    } catch {}
+    return commonFormulas[0];
+  });
   const [inputs, setInputs] = useState<Record<string, number>>({});
-  const [unitSelections, setUnitSelections] = useState<Record<string, string>>({});
+  const [unitSelections, setUnitSelections] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.UNIT_SELECTIONS);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [result, setResult] = useState<{ value: number; unit: string } | null>(null);
-  const [adjustmentMode, setAdjustmentMode] = useState<string>("tax");
+  const [adjustmentMode, setAdjustmentMode] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ADJUSTMENT_MODE);
+    return saved || "tax";
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.UNIT_SELECTIONS, JSON.stringify(unitSelections));
+  }, [unitSelections]);
+  
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.ADJUSTMENT_MODE, adjustmentMode);
+  }, [adjustmentMode]);
+  
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.SELECTED_FORMULA, selectedFormula.name);
+  }, [selectedFormula]);
 
   useEffect(() => {
     // Set the adjustmentMode in unitSelections when it changes
@@ -186,7 +253,14 @@ const Calculator = () => {
             onValueChange={handleFormulaChange}
           >
             <SelectTrigger className="w-full bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
-              <SelectValue placeholder="Select a calculation" />
+              <SelectValue placeholder="Select a calculation">
+                {selectedFormula && (
+                  <div className="flex items-center">
+                    {formulaIcons[selectedFormula.name] || <CalculatorIcon className="h-4 w-4 mr-2" />}
+                    <span>{selectedFormula.name}</span>
+                  </div>
+                )}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20 max-h-80">
               {commonFormulas.map((formula) => (
@@ -195,7 +269,10 @@ const Calculator = () => {
                   value={formula.name}
                   className="cursor-pointer hover:bg-appblue-dark"
                 >
-                  {formula.name}
+                  <div className="flex items-center">
+                    {formulaIcons[formula.name] || <CalculatorIcon className="h-4 w-4 mr-2" />}
+                    <span>{formula.name}</span>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -204,10 +281,15 @@ const Calculator = () => {
       </div>
 
       <div className="unit-card mb-6">
-        <h3 className="text-lg mb-2 text-appwhite">{selectedFormula.name}</h3>
-        <p className="text-appwhite/70 mb-4">{selectedFormula.description}</p>
+        <h3 className="text-lg mb-2 text-appwhite flex items-center">
+          {formulaIcons[selectedFormula.name] || <CalculatorIcon className="h-5 w-5 mr-2" />}
+          {selectedFormula.name}
+        </h3>
+        <p className="text-appwhite/70 mb-4 text-xs">
+          {selectedFormula.description}
+        </p>
         
-        <div className="form-section mb-6">
+        <div className="space-y-4">
           {renderAdjustmentModeButtons()}
           
           {selectedFormula.inputs.map((input) => (
@@ -215,7 +297,7 @@ const Calculator = () => {
               <label htmlFor={input.id} className="block text-sm font-medium text-appwhite/80 mb-1">
                 {input.label}
               </label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                 <input
                   id={input.id}
                   type={selectedFormula.name === "Ohm's Law Calculator" || 
@@ -223,7 +305,7 @@ const Calculator = () => {
                        ? "text" : "number"}
                   placeholder={input.placeholder}
                   defaultValue={input.defaultValue}
-                  className="input-field flex-1"
+                  className="input-field flex-1 min-w-0"
                   onChange={(e) => handleInputChange(input.id, e.target.value)}
                   value={inputs[input.id] !== undefined ? inputs[input.id] : ""}
                 />
@@ -234,7 +316,7 @@ const Calculator = () => {
                     value={unitSelections[input.id]}
                     onValueChange={(value) => handleUnitChange(input.id, value)}
                   >
-                    <SelectTrigger className="w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
+                    <SelectTrigger className="w-32 md:w-32 bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 shadow-inner shadow-appcyan/20 glowing-focus outline-none ring-0 ring-offset-0 focus:ring-0 focus:ring-offset-0">
                       <SelectValue placeholder="Unit" />
                     </SelectTrigger>
                     <SelectContent className="bg-appblue-light text-appwhite border-appwhite/20">
@@ -258,7 +340,7 @@ const Calculator = () => {
             </div>
           ))}
           
-          <div className="flex gap-4 mt-6">
+          <div className="flex gap-4 mt-6 mb-4">
             <button
               type="button"
               onClick={calculateResult}
