@@ -26,30 +26,15 @@ const UnitConverter: React.FC = () => {
   return (
     <div className="min-h-screen p-4 sm:p-6 max-w-4xl mx-auto">
       <header className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-appcyan to-white mb-2 animate-subtle-pulse">Precision Unit Converter</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">Precision Unit Converter</h1>
         <p className="text-appwhite/60">Convert between different units quickly and easily</p>
       </header>
 
       <Tabs defaultValue="units" className="w-full mb-6">
-        <TabsList className="grid grid-cols-3 mb-6 bg-gradient-to-r from-appblue-dark/80 to-appblue-light/50 p-1 rounded-lg border border-appcyan/20 animate-subtle-glow">
-          <TabsTrigger 
-            value="units" 
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/90 data-[state=active]:to-appcyan/70 data-[state=active]:text-appblue data-[state=active]:shadow-lg data-[state=active]:shadow-appcyan/30"
-          >
-            Unit Conversion
-          </TabsTrigger>
-          <TabsTrigger 
-            value="currency"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/90 data-[state=active]:to-appcyan/70 data-[state=active]:text-appblue data-[state=active]:shadow-lg data-[state=active]:shadow-appcyan/30"
-          >
-            Currency
-          </TabsTrigger>
-          <TabsTrigger 
-            value="calculator"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-appcyan/90 data-[state=active]:to-appcyan/70 data-[state=active]:text-appblue data-[state=active]:shadow-lg data-[state=active]:shadow-appcyan/30"
-          >
-            Useful Calculation
-          </TabsTrigger>
+        <TabsList className="grid grid-cols-3 mb-6 bg-appblue-dark/40 backdrop-blur-sm">
+          <TabsTrigger value="units">Unit Conversion</TabsTrigger>
+          <TabsTrigger value="currency">Currency</TabsTrigger>
+          <TabsTrigger value="calculator">Useful Calculation</TabsTrigger>
         </TabsList>
         
         <TabsContent value="units">

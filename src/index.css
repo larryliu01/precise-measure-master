@@ -62,7 +62,7 @@
   }
 
   body {
-    @apply bg-gradient-to-b from-appblue to-appblue-dark min-h-screen text-appwhite;
+    @apply bg-appblue text-foreground min-h-screen;
   }
   
   /* Only add glow effect to specific focused elements */
@@ -92,8 +92,9 @@
 }
 
 .input-field {
-  @apply bg-appblue-dark/30 text-appwhite border-2 border-appcyan/30 rounded-md p-2 shadow-inner shadow-appcyan/20 transition-all;
-  @apply focus:border-appcyan/50 focus:shadow-appcyan/30 focus:outline-none focus:ring-0 focus:ring-offset-0;
+  @apply bg-appblue-dark/30 rounded-xl border-2 border-appcyan/30 p-3 text-white w-full 
+  outline-none focus:border-appcyan
+  shadow-inner shadow-appcyan/20;
 }
 
 /* Override any browser default focus outlines more aggressively */
@@ -131,29 +132,34 @@ input:focus-visible,
   ring-offset-width: 0 !important;
 }
 
-.unit-card, .conversion-card, .tips-card {
-  @apply bg-gradient-to-b from-appblue-light/30 to-appblue/40 rounded-xl p-6 border border-appwhite/10 shadow-lg shadow-black/20 backdrop-blur-sm;
+.unit-card {
+  @apply bg-appblue-light rounded-xl p-5 transition-all hover:shadow-lg hover:shadow-appcyan/10 border border-border/30;
+}
+
+.conversion-card {
+  @apply bg-appblue-light rounded-xl p-6 border border-border/30 mb-4;
 }
 
 .category-button {
-  @apply px-4 py-3 bg-appblue-light rounded-xl transition-all hover:bg-appblue-light border border-border/30;
+  @apply flex items-center px-3 py-2 bg-appblue-dark/30 text-appwhite rounded-md border-2 border-appcyan/30 hover:bg-appcyan/10 transition-colors;
 }
 
 .category-button.active {
-  @apply bg-appcyan text-appblue border-transparent;
+  @apply bg-appcyan text-appblue font-medium;
 }
 
 /* Custom buttons */
 .main-button,
 .primary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-gradient-to-r from-appcyan to-appcyan/90 text-appblue hover:from-appcyan/90 hover:to-appcyan/80 transition-colors;
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appcyan text-appblue hover:bg-appcyan/90 transition-colors;
 }
 
 .secondary-button {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors hover:border-appcyan/50;
+  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium bg-appblue-dark/30 text-appwhite border border-appcyan/30 hover:bg-appblue-dark/50 transition-colors;
 }
 
-/* Form section styling */
-.form-section {
-  @apply bg-gradient-to-br from-appblue-light/20 to-appblue-dark/40 rounded-lg p-4 border border-appwhite/5;
+/* Collapsible section animations */
+.max-h-0 {
+  max-height: 0;
+  overflow: hidden;
 }
