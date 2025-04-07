@@ -156,36 +156,38 @@ const ConversionCard: React.FC<ConversionCardProps> = ({ category }) => {
 
   return (
     <div className="conversion-card">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ConversionInput
-          category={category}
-          value={fromValue}
-          unit={fromUnit}
-          onValueChange={handleFromValueChange}
-          onUnitChange={setFromUnit}
-          label="From"
-          placeholder="Enter value"
-        />
+      <div className="form-section mb-4 p-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <ConversionInput
+            category={category}
+            value={fromValue}
+            unit={fromUnit}
+            onValueChange={handleFromValueChange}
+            onUnitChange={setFromUnit}
+            label="From"
+            placeholder="Enter value"
+          />
 
-        <ConversionInput
-          category={category}
-          value={toValue}
-          unit={toUnit}
-          onValueChange={handleToValueChange}
-          onUnitChange={setToUnit}
-          label="To"
-        />
-      </div>
+          <ConversionInput
+            category={category}
+            value={toValue}
+            unit={toUnit}
+            onValueChange={handleToValueChange}
+            onUnitChange={setToUnit}
+            label="To"
+          />
+        </div>
 
-      <div className="mt-4 flex justify-center">
-        <button
-          onClick={handleSwap}
-          className="secondary-button"
-          aria-label="Swap units"
-        >
-          <ArrowDownUp className="h-5 w-5 mr-2" />
-          Swap
-        </button>
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={handleSwap}
+            className="secondary-button"
+            aria-label="Swap units"
+          >
+            <ArrowDownUp className="h-5 w-5 mr-2" />
+            Swap
+          </button>
+        </div>
       </div>
     </div>
   );

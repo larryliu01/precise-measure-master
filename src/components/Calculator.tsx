@@ -207,7 +207,7 @@ const Calculator = () => {
         <h3 className="text-lg mb-2 text-appwhite">{selectedFormula.name}</h3>
         <p className="text-appwhite/70 mb-4">{selectedFormula.description}</p>
         
-        <div className="space-y-4">
+        <div className="form-section mb-6">
           {renderAdjustmentModeButtons()}
           
           {selectedFormula.inputs.map((input) => (
@@ -258,7 +258,7 @@ const Calculator = () => {
             </div>
           ))}
           
-          <div className="flex gap-4 mt-6 mb-4">
+          <div className="flex gap-4 mt-6">
             <button
               type="button"
               onClick={calculateResult}
@@ -277,24 +277,24 @@ const Calculator = () => {
           </div>
           
           {result && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-appblue/80 to-appblue-dark/80 rounded-lg border border-appcyan/20 shadow-lg shadow-black/20 backdrop-blur-sm animate-subtle-glow">
+            <div className="mt-4 p-4 bg-appblue rounded-lg border border-appwhite/20">
               <p className="text-appwhite/80">Result:</p>
               <div className="mt-1">
                 {selectedFormula.name === "Compound Interest Calculator" || 
                  selectedFormula.name === "Fuel Cost for a Trip" || 
                  selectedFormula.name === "Mortgage Payment" ? (
-                  <p className="text-xl font-bold text-appcyan animate-subtle-pulse">
+                  <p className="text-xl font-bold text-appcyan">
                     ${result.value} {result.unit !== "$" && result.unit !== "$/month" ? result.unit : ""}
                   </p>
                 ) : selectedFormula.name === "Body Mass Index (BMI)" ? (
                   <div>
-                    <p className="text-xl font-bold text-appcyan mb-2 animate-subtle-pulse">
+                    <p className="text-xl font-bold text-appcyan mb-2">
                       {result.value} {result.unit.split('\n\n')[0]}
                     </p>
                     <p className="text-appwhite font-medium text-md mb-1">
                       {result.unit.split('\n\n')[1]}
                     </p>
-                    <div className="text-appwhite/80 text-sm mt-3 p-3 bg-gradient-to-r from-appblue-dark/60 to-appblue-light/40 rounded-md border border-appwhite/10">
+                    <div className="text-appwhite/80 text-sm mt-3 p-2 bg-appblue-dark/40 rounded-md border border-appwhite/10">
                       <p className="whitespace-pre-line">
                         {result.unit.split('\n\n')[2]}
                       </p>
@@ -302,11 +302,11 @@ const Calculator = () => {
                   </div>
                 ) : selectedFormula.name === "Electricity Cost" || 
                    selectedFormula.name === "Unit Price Comparison" ? (
-                  <p className="text-xl font-bold text-appcyan animate-subtle-pulse">
+                  <p className="text-xl font-bold text-appcyan">
                     {result.unit}
                   </p>
                 ) : (
-                  <p className="text-xl font-bold text-appcyan animate-subtle-pulse">
+                  <p className="text-xl font-bold text-appcyan">
                     {result.value} {result.unit}
                   </p>
                 )}
