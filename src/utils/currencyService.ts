@@ -1,15 +1,34 @@
 import { useEffect, useState } from 'react';
 
+// Fallback exchange rates against USD if API is unavailable
+const fallbackRates: Record<string, number> = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.77,
+  JPY: 150.63,
+  HKD: 7.77,
+  CAD: 1.37,
+  AUD: 1.51,
+  CHF: 0.89,
+  CNY: 7.21,
+  SGD: 1.35,
+  NZD: 1.65,
+  INR: 83.68,
+  KRW: 1342.21,
+  MXN: 18.36,
+  THB: 35.06
+};
+
+// Cache will be stored here
+let exchangeRatesCache: ExchangeRates | null = null;
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
 // Exchange rate cache structure
 interface ExchangeRates {
   base: string;
   rates: Record<string, number>;
   timestamp: number;
 }
-
-// Cache will be stored here
-let exchangeRatesCache: ExchangeRates | null = null;
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
 // Function to fetch current exchange rates
 export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<ExchangeRates> => {
@@ -49,8 +68,28 @@ export const fetchExchangeRates = async (baseCurrency: string = 'USD'): Promise<
       return exchangeRatesCache;
     }
     
-    // Otherwise throw the error
-    throw error;
+    // Create fallback rates for the requested base currency
+    const rates: Record<string, number> = {};
+    if (baseCurrency === 'USD') {
+      // If base is USD, use the fallback rates directly
+      return {
+        base: baseCurrency,
+        rates: fallbackRates,
+        timestamp: now
+      };
+    } else {
+      // If base is not USD, convert rates from USD to the requested base
+      const baseRate = fallbackRates[baseCurrency] || 1;
+      Object.keys(fallbackRates).forEach(currency => {
+        rates[currency] = fallbackRates[currency] / baseRate;
+      });
+      
+      return {
+        base: baseCurrency,
+        rates,
+        timestamp: now
+      };
+    }
   }
 };
 
