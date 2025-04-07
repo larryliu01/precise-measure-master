@@ -235,8 +235,25 @@ input:focus-visible,
     @apply p-3;
   }
   
+  /* Make category buttons more visible on mobile */
+  .category-button {
+    @apply px-2 py-2 text-sm;
+    min-width: 130px;  /* Ensure buttons have enough width for text */
+    margin-bottom: 4px;
+  }
+  
+  .category-button > div {
+    @apply justify-start;
+  }
+  
+  .category-button > div > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;  /* Prevent text from overflowing */
+  }
+  
   /* Improved touch targets for mobile */
-  .category-button, 
   .primary-button, 
   .secondary-button {
     @apply py-2.5 px-4;
