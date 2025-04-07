@@ -6,7 +6,7 @@ import CurrencyConverter from './CurrencyConverter';
 import Calculator from './Calculator';
 import { conversionCategories } from '../utils/conversion';
 import Footer from './Footer';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, DollarSign } from 'lucide-react';
 
 // Keys for localStorage
 const STORAGE_KEYS = {
